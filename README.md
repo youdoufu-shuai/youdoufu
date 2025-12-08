@@ -1,42 +1,61 @@
-# AI Image Generator (Gemini 3 Pro)
+# 🐷 油豆腐的 AI 绘图小站 (Powered by Gemini 3 Pro)
 
-This project is a full-stack AI image generation application using the Plato API (Gemini 3 Pro Preview).
+哈喽大家好！这是**油豆腐 (YouDouFu)** 折腾的一个 AI 图像生成 Web 应用。
 
-## Features
-- **Image-to-Image Generation**: Upload an image and provide a prompt to generate/edit images.
-- **Prompt Optimization**: Use Gemini 3 Pro to enhance your prompts.
-- **Modern UI**: Glassmorphism design with particle background.
+主要是为了试玩一下 **Gemini 3 Pro** 模型的能力，顺便把前端页面做得炫酷一点（毕竟颜值即正义嘛，赛博朋克风才是男人的浪漫！）。
 
-## Project Structure
-- `front/`: Frontend static files (HTML/CSS/JS).
-- `server/`: Backend Node.js/Express server.
+## ✨ 都有啥好玩的？
 
-## Local Development
+### 1. 🏠 赛博朋克风主页 (装杯神器)
+一打开网页，你会看到一个**粒子球体聚变**的开场动画，是不是感觉像黑客帝国？
+*   **炫酷视觉**：背景自带故障风 (Glitch) 文字特效，还有跟随鼠标的粒子背景。
+*   **个人介绍**：这里有我的头像和简介，想了解我更多可以点 GitHub 链接。
+*   **无缝切换**：点一下“🛠️ AI 工具箱”卡片，不用刷新页面，直接丝滑切换到绘图界面。
 
-1.  Navigate to the server directory:
+### 2. 🎨 AI 图生图工具箱 (核心功能)
+这里才是干货！基于 Gemini 3 Pro 的强大能力，你可以：
+*   **🖼️ 以图生图**：上传一张草图、表情包或者照片，告诉 AI 你想把它改成啥样。
+*   **📝 文生图**：直接写提示词也行，比如“一只在敲代码的猪”。
+*   **✨ 提示词优化**：这一招最绝！如果你不知道怎么写提示词（比如只憋出“画个美女”四个字），点一下这个按钮，AI 会自动帮你把它扩写成“电影质感、精致面容、柔和光效、8k分辨率...”的高级咒语。
+*   **📥 一键下载**：生成的图满意吗？点一下直接保存到本地。
+
+---
+
+## 🛠️ 怎么在自己电脑上跑？
+
+如果你也想把这个项目跑起来玩玩，其实很简单：
+
+1.  **下载代码**：
+    ```bash
+    git clone https://github.com/youdoufu-shuai/youdoufu.git
+    cd youdoufu
+    ```
+
+2.  **启动后端服务**：
+    进入 `server` 文件夹，安装依赖并启动：
     ```bash
     cd server
-    ```
-2.  Install dependencies:
-    ```bash
     npm install
-    ```
-3.  Start the server:
-    ```bash
     npm start
     ```
-4.  Open `http://localhost:3011` in your browser.
 
-## Deployment (Docker)
+3.  **玩起来**：
+    打开浏览器访问 `http://localhost:3011`，启动你的赛博朋克之旅！
 
-1.  Build the Docker image:
-    ```bash
-    docker build -t ai-image-gen .
-    ```
-2.  Run the container:
-    ```bash
-    docker run -d -p 3011:3011 --name ai-gen ai-image-gen
-    ```
+---
 
-## Environment Variables
-The API Key and URL are currently configured in `server/.env`. For production, pass them as environment variables to the Docker container.
+## 🐳 Docker 部署 (进阶玩法)
+
+如果你懒得配环境，也可以用 Docker：
+
+```bash
+# 构建镜像
+docker build -t ai-image-gen .
+
+# 跑起来
+docker run -d -p 3011:3011 --name ai-gen ai-image-gen
+```
+
+---
+
+觉得好玩的话，记得在右上角点个 **Star** 🌟 支持一下油豆腐哦！有问题欢迎提 Issue~
