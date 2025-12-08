@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>油豆腐🐷</title>
+    <style>
+        :root {
+            --primary-color: #00f3ff;
+            --secondary-color: #bc13fe;
+            --accent-color: #ff0055;
+            --bg-color: #050505;
+            --text-color: #e0e0e0;
+            --font-main: 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-main);
+            overflow-x: hidden;
+            line-height: 1.6;
+            cursor: crosshair; /* Tech feel cursor */
+        }
+
+        /* Canvas Background */
+        #particles-js {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            background: radial-gradient(circle at center, #11111e 0%, #000000 100%);
+        }
+        
+        /* Audio Visualizer Canvas */
+        #audio-visualizer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 150px;
+            z-index: 5;
+            pointer-events: none;
+            opacity: 0.8;
+            mask-image: linear-gradient(to top, rgba(0,0,0,1), rgba(0,0,0,0));
+            -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,1), rgba(0,0,0,0));
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 10;
+            display: none;
+            opacity: 0;
+            transition: opacity 1s ease;
+            padding-bottom: 100px;
+        }
+
+        .container.visible {
+            opacity: 1;
+        }
+
+        /* Intro Overlay */
+        #intro-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none;
+        }
+
+        .intro-text {
+            color: var(--primary-color);
+            font-size: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            opacity: 0;
+            transition: opacity 0.5s;
+            text-shadow: 0 0 20px var(--primary-color);
+            text-align: center;
+            font-weight: bold;
+        }
+
+        /* Music Control */
+        .music-control {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            z-index: 1000;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(0, 243, 255, 0.1);
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            animation: pulse 2s infinite;
+        }
+
+        .music-control:hover {
+            background: var(--primary-color);
+            color: #000;
+            box-shadow: 0 0 20px var(--primary-color);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .glitch-wrapper {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .glitch {
+            font-size: 6rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            position: relative;
+            color: var(--primary-color);
+            text-shadow: 0 0 20px var(--primary-color);
+            animation: glitch-anim 3s infinite linear alternate-reverse;
+        }
+
+        .glitch::before, .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .glitch::before {
+            left: 2px;
+            text-shadow: -1px 0 #ff00c1;
+            clip: rect(44px, 450px, 56px, 0);
+            animation: glitch-anim-2 5s infinite linear alternate-reverse;
+        }
+
+        .glitch::after {
+            left: -2px;
+            text-shadow: -1px 0 #00fff9;
+            clip: rect(44px, 450px, 56px, 0);
+            animation: glitch-anim-3 5s infinite linear alternate-reverse;
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            color: var(--secondary-color);
+            margin-top: 10px;
+            letter-spacing: 5px;
+            border-bottom: 1px solid var(--secondary-color);
+            padding-bottom: 5px;
+        }
+
+        /* Tech Borders & Layout */
+        .section-title {
+            font-size: 2.5rem;
+            margin-bottom: 60px;
+            margin-top: 100px;
+            color: var(--primary-color);
+            text-align: center;
+            position: relative;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+        
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 100px;
+            height: 3px;
+            background: var(--accent-color);
+            margin: 10px auto 0;
+            box-shadow: 0 0 10px var(--accent-color);
+        }
+
+        .about-grid {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 50px;
+            align-items: center;
+            background: rgba(10, 10, 20, 0.6);
+            padding: 40px;
+            border: 1px solid var(--primary-color);
+            position: relative;
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.1);
+        }
+        
+        /* Cyberpunk Corner Accents */
+        .about-grid::before, .about-grid::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--primary-color);
+            transition: all 0.3s;
+        }
+        .about-grid::before { top: -2px; left: -2px; border-right: none; border-bottom: none; }
+        .about-grid::after { bottom: -2px; right: -2px; border-left: none; border-top: none; }
+
+        .avatar-container {
+            width: 250px;
+            height: 250px;
+            position: relative;
+            margin: 0 auto;
+        }
+
+        .avatar-img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--primary-color);
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.3);
+            position: relative;
+            z-index: 2;
+        }
+
+        .avatar-glow {
+            position: absolute;
+            top: -15px; left: -15px; right: -15px; bottom: -15px;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, var(--primary-color), var(--secondary-color), var(--accent-color), var(--primary-color));
+            z-index: 1;
+            filter: blur(20px);
+            opacity: 0.5;
+            animation: rotate-glow 4s linear infinite;
+        }
+
+        /* Bottom Blocks */
+        .bottom-blocks {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            margin-top: 100px;
+        }
+
+        .block-card {
+            background: rgba(15, 15, 25, 0.7);
+            padding: 40px 30px;
+            text-align: center;
+            border: 1px solid rgba(0, 243, 255, 0.2);
+            position: relative;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: block;
+            color: var(--text-color);
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .block-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 2px;
+            background: var(--primary-color);
+            transform: scaleX(0);
+            transition: transform 0.3s;
+        }
+
+        .block-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary-color);
+            background: rgba(0, 243, 255, 0.05);
+            box-shadow: 0 10px 40px rgba(0, 243, 255, 0.15);
+        }
+
+        .block-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .block-title {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+            text-transform: uppercase;
+        }
+        
+        .block-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: var(--secondary-color);
+        }
+
+        /* Start Button */
+        #start-btn {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px 60px;
+            font-size: 1.8rem;
+            background: rgba(0,0,0,0.8);
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+            cursor: pointer;
+            z-index: 200;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            transition: all 0.3s;
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.3);
+            clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
+        }
+
+        #start-btn:hover {
+            background: var(--primary-color);
+            color: #000;
+            box-shadow: 0 0 60px rgba(0, 243, 255, 0.8);
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 243, 255, 0.7); }
+            70% { transform: scale(1.1); box-shadow: 0 0 0 15px rgba(0, 243, 255, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 243, 255, 0); }
+        }
+
+        @keyframes rotate-glow {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes glitch-anim {
+            0% { transform: translate(0) }
+            20% { transform: translate(-2px, 2px) }
+            40% { transform: translate(-2px, -2px) }
+            60% { transform: translate(2px, 2px) }
+            80% { transform: translate(2px, -2px) }
+            100% { transform: translate(0) }
+        }
+        
+        @keyframes glitch-anim-2 { 0% { clip: rect(12px, 9999px, 5px, 0) } 100% { clip: rect(89px, 9999px, 78px, 0) } }
+        @keyframes glitch-anim-3 { 0% { clip: rect(65px, 9999px, 12px, 0) } 100% { clip: rect(3px, 9999px, 92px, 0) } }
+
+        @media (max-width: 768px) {
+            .glitch { font-size: 3.5rem; }
+            .about-grid { grid-template-columns: 1fr; text-align: center; }
+            #start-btn { padding: 15px 30px; font-size: 1.2rem; width: 80%; }
+        }
+
+        /* AI App Styles */
+        .upload-area {
+            border: 2px dashed var(--secondary-color);
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .upload-area:hover {
+            background: rgba(188, 19, 254, 0.1);
+            box-shadow: 0 0 15px var(--secondary-color);
+        }
+        .upload-area input[type="file"] {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .preview-image {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 10px;
+            margin-top: 10px;
+            display: none;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+        }
+        .input-group { margin-bottom: 20px; }
+        textarea {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--primary-color);
+            color: var(--text-color);
+            padding: 15px;
+            border-radius: 10px;
+            resize: vertical;
+            min-height: 100px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        textarea:focus { outline: none; box-shadow: 0 0 15px var(--primary-color); }
+        .controls { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
+        .controls button {
+            background: transparent;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+            padding: 12px 25px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            flex: 1;
+        }
+        .controls button:hover {
+            background: var(--primary-color);
+            color: #000;
+            box-shadow: 0 0 20px var(--primary-color);
+        }
+        .controls button.secondary { border-color: var(--secondary-color); color: var(--secondary-color); }
+        .controls button.secondary:hover {
+            background: var(--secondary-color);
+            color: #fff;
+            box-shadow: 0 0 20px var(--secondary-color);
+        }
+        .templates { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .tag {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+        .tag:hover { border-color: var(--accent-color); color: var(--accent-color); }
+        #result-area {
+            margin-top: 30px;
+            text-align: center;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 20px;
+            background: rgba(0,0,0,0.2);
+        }
+        #result-image {
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            margin-bottom: 20px;
+            display: none;
+        }
+        .download-btn {
+            display: none;
+            text-decoration: none;
+            background: var(--accent-color);
+            color: white;
+            padding: 10px 30px;
+            border-radius: 30px;
+            font-weight: bold;
+            margin-top: 10px;
+            box-shadow: 0 0 15px var(--accent-color);
+        }
+        .loading {
+            display: none;
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            animation: pulse 1.5s infinite;
+        }
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .back-btn:hover {
+            text-shadow: 0 0 10px var(--primary-color);
+            transform: translateX(-5px);
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="particles-js"></canvas>
+    <canvas id="audio-visualizer"></canvas>
+    
+    <!-- Warp Overlay -->
+    <div id="warp-overlay" style="position:fixed; top:0; left:0; width:100%; height:100%; background:white; opacity:0; pointer-events:none; z-index:9999; transition: opacity 0.5s ease-in-out;"></div>
+
+    <button id="start-btn">启动系统</button>
+
+    <div id="intro-overlay">
+        <div class="intro-text" id="status-text">系统待机中...</div>
+    </div>
+
+    <!-- Music Control -->
+    <div class="music-control" id="music-toggle" title="开关音乐">
+        <i>🎵</i>
+    </div>
+    <audio id="bg-music" loop crossorigin="anonymous">
+        <source src="music/wasted.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- HOME SECTION -->
+    <div class="container" id="home-section">
+        <div class="hero">
+            <div class="glitch-wrapper">
+               <div class="glitch" data-text="油豆腐 AI">油豆腐 AI</div>
+            </div>
+            <div class="subtitle">未来已至 // FUTURE IS NOW</div>
+        </div>
+
+        <div class="section-title">关于作者</div>
+        <div class="about-grid">
+            <div class="avatar-container">
+                <div class="avatar-glow"></div>
+                <img src="https://github.com/youdoufu-shuai.png" class="avatar-img" alt="Avatar">
+            </div>
+            <div>
+                <h2 style="color:var(--primary-color); margin-bottom:20px;">油豆腐 (YouDouFu)</h2>
+                <p style="margin-bottom:15px; font-size: 1.1rem;">全栈开发者 / AI 爱好者 / 赛博朋克信徒</p>
+                <p>致力于探索 AI 与艺术的边界。本项目基于 Gemini 3 Pro 构建，旨在提供极致的 AI 图像生成体验。欢迎关注我的开源项目！</p>
+            </div>
+        </div>
+
+        <div class="bottom-blocks">
+            <div class="block-card" id="to-toolbox">
+                <div class="block-icon">🛠️</div>
+                <div class="block-title">AI 工具箱</div>
+                <p>启动高性能图像生成核心，支持图生图与提示词优化。</p>
+            </div>
+            <a href="https://github.com/youdoufu-shuai?tab=projects" target="_blank" class="block-card">
+                <div class="block-icon">💻</div>
+                <div class="block-title">GitHub</div>
+                <p>查看源代码与更多开源项目。</p>
+            </a>
+        </div>
+    </div>
+
+    <!-- AI TOOL SECTION -->
+    <div class="container" id="ai-tool-section">
+        <div id="back-home-btn" class="back-btn">
+            &larr; 返回主页
+        </div>
+        
+        <h1 style="text-align:center; margin-bottom:30px; color:var(--primary-color);">AI 图生图 (Gemini 3 Pro)</h1>
+
+        <div class="upload-area" id="drop-zone">
+            <p>点击或拖拽上传图片</p>
+            <input type="file" id="image-upload" accept="image/*">
+            <img id="preview" class="preview-image" alt="Preview">
+        </div>
+
+        <div class="templates">
+            <span class="tag" onclick="setPrompt('赛博朋克风格，霓虹灯光，高细节')">赛博朋克</span>
+            <span class="tag" onclick="setPrompt('水彩画风格，柔和的色彩，艺术感')">水彩画</span>
+            <span class="tag" onclick="setPrompt('吉卜力风格，动漫，清新自然')">吉卜力</span>
+            <span class="tag" onclick="setPrompt('写实风格，8k分辨率，电影质感')">写实</span>
+            <span class="tag" onclick="setPrompt('像素艺术，复古游戏风格')">像素风</span>
+            <span class="tag" onclick="setPrompt('3D渲染，Blender风格，极简主义')">3D渲染</span>
+        </div>
+
+        <div class="input-group">
+            <textarea id="prompt-input" placeholder="输入提示词... (例如: 一个在雨中撑伞的女孩)"></textarea>
+        </div>
+
+        <div class="controls">
+            <button class="secondary" id="optimize-btn">✨ 优化提示词</button>
+            <button id="generate-btn">🎨 生成图片</button>
+        </div>
+
+        <div id="result-area">
+            <div class="loading" id="loading">正在生成中，请稍候...</div>
+            <img id="result-image" alt="Result">
+            <p id="result-text" style="white-space: pre-wrap; margin-bottom: 10px;"></p>
+            <a href="#" class="download-btn" id="download-link" download="generated-image.png">📥 下载图片</a>
+        </div>
+    </div>
+
+    <script src="index.js"></script>
+</body>
+</html>
