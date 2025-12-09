@@ -158,39 +158,39 @@ app.post('/api/generate-text', upload.none(), async (req, res) => {
         }
 
         if (imageUrl) {
-            // Try to DOWNLOAD and SAVE the image
-            try {
-                const imageFileName = `gen-txt-${Date.now()}.png`;
-                const localImagePath = path.join(generatedImagesDir, imageFileName);
-                
-                const writer = fs.createWriteStream(localImagePath);
-                const imgStreamResponse = await axios({
-                    url: imageUrl,
-                    method: 'GET',
-                    responseType: 'stream',
-                    timeout: 30000
-                });
+            // Respond immediately with remote URL to avoid timeout issues
+            // This ensures the client gets a result even if the subsequent download takes time
+            res.json({
+                imageUrl: imageUrl,
+                description: content
+            });
 
-                imgStreamResponse.data.pipe(writer);
+            // Try to DOWNLOAD and SAVE the image in the background
+            (async () => {
+                try {
+                    const imageFileName = `gen-txt-${Date.now()}.png`;
+                    const localImagePath = path.join(generatedImagesDir, imageFileName);
+                    
+                    const writer = fs.createWriteStream(localImagePath);
+                    const imgStreamResponse = await axios({
+                        url: imageUrl,
+                        method: 'GET',
+                        responseType: 'stream',
+                        timeout: 60000 // 60s timeout for download
+                    });
 
-                await new Promise((resolve, reject) => {
-                    writer.on('finish', resolve);
-                    writer.on('error', reject);
-                });
+                    imgStreamResponse.data.pipe(writer);
 
-                const localUrl = `/generated_images/${imageFileName}`;
-                
-                res.json({
-                    imageUrl: localUrl,
-                    description: content
-                });
-            } catch (downloadError) {
-                console.error("Failed to download image, returning remote URL:", downloadError.message);
-                res.json({
-                    imageUrl: imageUrl,
-                    description: content
-                });
-            }
+                    await new Promise((resolve, reject) => {
+                        writer.on('finish', resolve);
+                        writer.on('error', reject);
+                    });
+
+                    console.log(`[Background] Text-to-Image saved locally: ${localImagePath}`);
+                } catch (downloadError) {
+                    console.error("[Background] Failed to download image:", downloadError.message);
+                }
+            })();
         } else {
             throw new Error("No image URL received from API");
         }
@@ -263,39 +263,38 @@ app.post('/api/generate-image', upload.single('image'), async (req, res) => {
         }
 
         if (imageUrl) {
-             // Try to DOWNLOAD and SAVE the image
-             try {
-                const imageFileName = `gen-img-${Date.now()}.png`;
-                const localImagePath = path.join(generatedImagesDir, imageFileName);
-                
-                const writer = fs.createWriteStream(localImagePath);
-                const imgStreamResponse = await axios({
-                    url: imageUrl,
-                    method: 'GET',
-                    responseType: 'stream',
-                    timeout: 30000
-                });
+             // Respond immediately with remote URL to avoid timeout issues
+             res.json({
+                 imageUrl: imageUrl,
+                 description: prompt
+             });
 
-                imgStreamResponse.data.pipe(writer);
+             // Try to DOWNLOAD and SAVE the image in the background
+             (async () => {
+                 try {
+                    const imageFileName = `gen-img-${Date.now()}.png`;
+                    const localImagePath = path.join(generatedImagesDir, imageFileName);
+                    
+                    const writer = fs.createWriteStream(localImagePath);
+                    const imgStreamResponse = await axios({
+                        url: imageUrl,
+                        method: 'GET',
+                        responseType: 'stream',
+                        timeout: 60000 // 60s timeout for download
+                    });
 
-                await new Promise((resolve, reject) => {
-                    writer.on('finish', resolve);
-                    writer.on('error', reject);
-                });
+                    imgStreamResponse.data.pipe(writer);
 
-                const localUrl = `/generated_images/${imageFileName}`;
-                
-                res.json({
-                    imageUrl: localUrl,
-                    description: prompt
-                });
-            } catch (downloadError) {
-                console.error("Failed to download image, returning remote URL:", downloadError.message);
-                res.json({
-                    imageUrl: imageUrl,
-                    description: prompt
-                });
-            }
+                    await new Promise((resolve, reject) => {
+                        writer.on('finish', resolve);
+                        writer.on('error', reject);
+                    });
+
+                    console.log(`[Background] Image-to-Image saved locally: ${localImagePath}`);
+                } catch (downloadError) {
+                    console.error("[Background] Failed to download image:", downloadError.message);
+                }
+             })();
         } else {
              throw new Error("No image URL received from API");
         }
