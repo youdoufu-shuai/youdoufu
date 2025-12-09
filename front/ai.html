@@ -107,6 +107,34 @@
             margin-bottom: 20px;
         }
 
+        .ratio-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .ratio-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--glass-border);
+            color: var(--text-color);
+            padding: 8px 15px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+            flex: 1;
+            text-align: center;
+            min-width: 60px;
+        }
+
+        .ratio-btn:hover, .ratio-btn.active {
+            background: var(--secondary-color);
+            color: white;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 10px rgba(188, 19, 254, 0.3);
+        }
+
         textarea {
             width: 100%;
             background: rgba(0, 0, 0, 0.3);
@@ -264,6 +292,14 @@
             <textarea id="prompt-input" placeholder="输入提示词... (例如: 一个在雨中撑伞的女孩)"></textarea>
         </div>
 
+        <div class="ratio-selector">
+            <div class="ratio-btn active" data-size="1024x1024">1:1</div>
+            <div class="ratio-btn" data-size="1024x768">4:3</div>
+            <div class="ratio-btn" data-size="1024x576">16:9</div>
+            <div class="ratio-btn" data-size="768x1024">3:4</div>
+            <div class="ratio-btn" data-size="576x1024">9:16</div>
+        </div>
+
         <div class="controls">
             <button id="generate-btn">🎨 生成图片</button>
         </div>
@@ -289,6 +325,18 @@
         const resultImage = document.getElementById('result-image');
         const resultText = document.getElementById('result-text');
         const downloadLink = document.getElementById('download-link');
+        const ratioBtns = document.querySelectorAll('.ratio-btn');
+        
+        let selectedSize = '1024x1024';
+
+        // Ratio Selection
+        ratioBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                ratioBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                selectedSize = btn.dataset.size;
+            });
+        });
 
         // Handle Image Upload Preview
         imageUpload.addEventListener('change', function(e) {
@@ -323,6 +371,7 @@
 
             const formData = new FormData();
             formData.append('prompt', prompt);
+            formData.append('size', selectedSize);
             if (file) {
                 formData.append('image', file);
             }

@@ -43,6 +43,7 @@ app.use('/api/', limiter);
 // Static files (Frontend)
 app.use(express.static(path.join(__dirname, '../front')));
 app.use('/image', express.static(path.join(__dirname, '../image')));
+app.use('/music', express.static(path.join(__dirname, '../music')));
 
 // Multer setup for file uploads
 const upload = multer({
@@ -67,13 +68,14 @@ app.use('/generated_images', express.static(path.join(__dirname, 'generated_imag
 // Route: Text to Image (txt2img)
 app.post('/api/generate-text', upload.none(), async (req, res) => {
     try {
-        const { prompt } = req.body;
+        const { prompt, size } = req.body;
 
         if (!prompt) {
             return res.status(400).json({ error: 'Prompt is required' });
         }
 
         console.log("Starting Text-to-Image generation with prompt:", prompt);
+        console.log("Requested size:", size || "Default (512x512)");
 
         let imageUrl = null;
         let content = prompt;
@@ -86,7 +88,7 @@ app.post('/api/generate-text', upload.none(), async (req, res) => {
                 model: 'nano-banana-2-2k', 
                 prompt: prompt,
                 n: 1,
-                size: "512x512"
+                size: size || "512x512"
             }, {
                 headers: {
                     'Authorization': `Bearer ${PLATO_API_KEY}`,
@@ -172,7 +174,7 @@ app.post('/api/generate-text', upload.none(), async (req, res) => {
 // Route: Image to Image (img2img)
 app.post('/api/generate-image', upload.single('image'), async (req, res) => {
     try {
-        const { prompt } = req.body;
+        const { prompt, size } = req.body;
         const imageFile = req.file;
 
         if (!imageFile) {
@@ -180,6 +182,7 @@ app.post('/api/generate-image', upload.single('image'), async (req, res) => {
         }
 
         console.log("Starting Image-to-Image generation with prompt:", prompt || "(No prompt provided)");
+        console.log("Requested size:", size || "Default (512x512)");
         
         // Convert image to base64
         // Many OneAPI providers expect just the base64 string without the data URI prefix for 'image' field,
@@ -201,7 +204,7 @@ app.post('/api/generate-image', upload.single('image'), async (req, res) => {
             form.append('model', 'nano-banana-2-2k');
             form.append('prompt', prompt || "optimize image");
             form.append('n', 1);
-            form.append('size', "512x512");
+            form.append('size', size || "512x512");
             form.append('image', imageFile.buffer, {
                 filename: 'input.png',
                 contentType: imageFile.mimetype
