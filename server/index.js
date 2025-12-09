@@ -92,7 +92,8 @@ app.post('/api/generate-text', upload.none(), async (req, res) => {
                     'Authorization': `Bearer ${PLATO_API_KEY}`,
                     'Content-Type': 'application/json'
                 },
-                timeout: 300000 // 300s timeout for image generation
+                timeout: 300000, // 300s timeout for image generation
+                maxBodyLength: Infinity
             });
             
             if (imageResponse.data && imageResponse.data.data && imageResponse.data.data.length > 0) {
@@ -100,7 +101,7 @@ app.post('/api/generate-text', upload.none(), async (req, res) => {
                 console.log("nano-banana-2-4k generation successful:", imageUrl);
             }
         } catch (imgGenError) {
-            console.log("Text-to-Image nano-banana-2-4k failed:", imgGenError.response ? imgGenError.response.data : imgGenError.message);
+            console.log("Text-to-Image nano-banana-2-4k failed:", JSON.stringify(imgGenError.response ? imgGenError.response.data : imgGenError.message, null, 2));
             
             // Fallback to DALL-E 3
             console.log("Falling back to DALL-E 3...");
@@ -208,13 +209,17 @@ app.post('/api/generate-image', upload.single('image'), async (req, res) => {
 
             // We need to get headers from the form-data instance
             const formHeaders = form.getHeaders();
+            
+            console.log(`Sending Image-to-Image request. Image size: ${imageFile.size} bytes`);
 
             const imageResponse = await axios.post(`${PLATO_API_URL}/images/edits`, form, {
                 headers: {
                     'Authorization': `Bearer ${PLATO_API_KEY}`,
                     ...formHeaders
                 },
-                timeout: 300000 // 300s timeout for image generation
+                timeout: 300000, // 300s timeout for image generation
+                maxBodyLength: Infinity,
+                maxContentLength: Infinity
             });
             
             if (imageResponse.data && imageResponse.data.data && imageResponse.data.data.length > 0) {
