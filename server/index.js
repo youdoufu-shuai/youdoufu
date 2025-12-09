@@ -63,7 +63,7 @@ app.post('/api/optimize', async (req, res) => {
         }
 
         const response = await axios.post(`${PLATO_API_URL}/chat/completions`, {
-            model: 'gemini-3-pro-preview',
+            model: 'nano-banana-2-4k',
             messages: [
                 {
                     role: 'system',
@@ -117,68 +117,17 @@ app.post('/api/generate', upload.single('image'), async (req, res) => {
         console.log("Starting generation with prompt:", prompt);
 
         try {
-            // Attempt 1: Direct Gemini 3 Pro Call with "Draw" instruction
-            // We explicitly ask it to provide an image URL if possible.
-            const messages = [
-                 {
-                    role: 'system',
-                    content: 'You are an advanced AI capability capable of generating images. If the user asks for an image, please generate it and provide the URL. If you cannot generate images directly, please describe the image in great detail so a downstream model can generate it. IMPORTANT: The description MUST be generic and avoid copyrighted characters, specific public figures, or NSFW content to pass safety filters. For example, instead of "Reze from Chainsaw Man", use "a stylized anime girl with black hair and green eyes".'
-                }
-            ];
-
-            if (base64Image) {
-                 messages.push({
-                    role: 'user',
-                    content: [
-                        { type: 'text', text: (prompt || "Generate a variation of this image") + " . Return the image URL if possible." },
-                        { type: 'image_url', image_url: { url: base64Image } }
-                    ]
-                });
-            } else {
-                messages.push({
-                    role: 'user',
-                    content: prompt + " . Generate an image for this."
-                });
-            }
-
-            const geminiResponse = await axios.post(`${PLATO_API_URL}/chat/completions`, {
-                model: 'gemini-3-pro-preview',
-                messages: messages,
-                stream: false
-            }, {
-                headers: {
-                    'Authorization': `Bearer ${PLATO_API_KEY}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            const content = geminiResponse.data.choices[0].message.content;
-            console.log("Gemini Response Content:", content);
-
-            // Check for Markdown Image or URL
-            const urlRegex = /!\[.*?\]\((https?:\/\/[^\s)]+)\)|(https?:\/\/[^\s]+\.(png|jpg|jpeg|webp))/gi;
-            const match = urlRegex.exec(content);
+            // Attempt 1: Direct Image Generation with nano-banana-2-4k
+            // Skipping Chat Completion since it caused "bad_response_body" error
             
             let imageUrl = null;
-            if (match) {
-                imageUrl = match[1] || match[2];
-                console.log("Found image URL in Gemini response:", imageUrl);
-            }
+            let content = prompt; // Default description is the prompt itself
 
-            // If Gemini didn't return an image, we use DALL-E 3 as fallback (Transparently)
-            // We use the content from Gemini (which might be a refined description) as the prompt
-            if (!imageUrl) {
-                console.log("No image URL found in Gemini response. Falling back to DALL-E 3 pipeline.");
-                
-                // If the content is too long or conversational, we might want to strip it, 
-                // but usually Gemini description is good for DALL-E.
-                // If image input was used, 'content' is the analysis of the image.
-                
-                const dallePrompt = content.length > 1000 ? content.substring(0, 1000) : content;
-
+            try {
+                console.log("Trying /images/generations with nano-banana-2-4k...");
                 const imageResponse = await axios.post(`${PLATO_API_URL}/images/generations`, {
-                    model: 'dall-e-3',
-                    prompt: dallePrompt,
+                    model: 'nano-banana-2-4k', 
+                    prompt: prompt,
                     n: 1,
                     size: "1024x1024"
                 }, {
@@ -188,7 +137,32 @@ app.post('/api/generate', upload.single('image'), async (req, res) => {
                     }
                 });
                 
-                imageUrl = imageResponse.data.data[0].url;
+                if (imageResponse.data && imageResponse.data.data && imageResponse.data.data.length > 0) {
+                    imageUrl = imageResponse.data.data[0].url;
+                    console.log("nano-banana-2-4k generation successful:", imageUrl);
+                }
+            } catch (imgGenError) {
+                console.log("Direct image generation with nano-banana-2-4k failed:", imgGenError.response ? imgGenError.response.data : imgGenError.message);
+                
+                // Fallback to DALL-E 3
+                console.log("Falling back to DALL-E 3...");
+                try {
+                    const fallbackResponse = await axios.post(`${PLATO_API_URL}/images/generations`, {
+                        model: 'dall-e-3',
+                        prompt: prompt,
+                        n: 1,
+                        size: "1024x1024"
+                    }, {
+                        headers: {
+                            'Authorization': `Bearer ${PLATO_API_KEY}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    imageUrl = fallbackResponse.data.data[0].url;
+                } catch (fallbackError) {
+                    console.error("Fallback DALL-E 3 failed:", fallbackError.response ? fallbackError.response.data : fallbackError.message);
+                    throw new Error("All image generation attempts failed.");
+                }
             }
 
             if (imageUrl) {
@@ -217,7 +191,7 @@ app.post('/api/generate', upload.single('image'), async (req, res) => {
                     
                     res.json({
                         imageUrl: localUrl,
-                        description: content // Return the Gemini description/text as well
+                        description: content // Return the prompt as description
                     });
                 } catch (downloadError) {
                     console.error("Failed to download image, returning remote URL:", downloadError.message);

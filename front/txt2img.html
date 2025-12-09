@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>油豆腐🐷 - AI 文字生成图片</title>
+    <style>
+        :root {
+            --primary-color: #00f3ff;
+            --secondary-color: #bc13fe;
+            --accent-color: #ff0055;
+            --bg-color: #050505;
+            --text-color: #e0e0e0;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --font-main: 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-main);
+            overflow-x: hidden;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Canvas Background */
+        #particles-js {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: radial-gradient(circle at center, #11111e 0%, #000000 100%);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            width: 95%;
+            margin: 40px auto;
+            padding: 30px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.1);
+            z-index: 10;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px var(--primary-color);
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--primary-color);
+            color: var(--text-color);
+            padding: 15px;
+            border-radius: 10px;
+            resize: vertical;
+            min-height: 150px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            box-shadow: 0 0 15px var(--primary-color);
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: transparent;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+            padding: 12px 25px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            flex: 1;
+        }
+
+        button:hover {
+            background: var(--primary-color);
+            color: #000;
+            box-shadow: 0 0 20px var(--primary-color);
+        }
+
+        button.secondary {
+            border-color: var(--secondary-color);
+            color: var(--secondary-color);
+        }
+
+        button.secondary:hover {
+            background: var(--secondary-color);
+            color: #fff;
+            box-shadow: 0 0 20px var(--secondary-color);
+        }
+
+        .templates {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .tag:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        #result-area {
+            margin-top: 30px;
+            text-align: center;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 20px;
+            background: rgba(0,0,0,0.2);
+        }
+
+        #result-image {
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .download-btn {
+            display: none;
+            text-decoration: none;
+            background: var(--accent-color);
+            color: white;
+            padding: 10px 30px;
+            border-radius: 30px;
+            font-weight: bold;
+            margin-top: 10px;
+            box-shadow: 0 0 15px var(--accent-color);
+        }
+        
+        .loading {
+            display: none;
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="particles-js"></canvas>
+
+    <div class="container">
+        <h1>AI 文字生成图片 (nano-banana-2-4k)</h1>
+
+        <div class="templates">
+            <span class="tag" onclick="setPrompt('一只赛博朋克风格的机械猫，霓虹灯背景')">机械猫</span>
+            <span class="tag" onclick="setPrompt('未来城市的街道，飞行汽车，雨夜，高细节')">未来城市</span>
+            <span class="tag" onclick="setPrompt('中国山水画风格，云雾缭绕，仙鹤飞舞')">水墨山水</span>
+            <span class="tag" onclick="setPrompt('宇航员在火星上种土豆，写实风格，电影质感')">火星种田</span>
+            <span class="tag" onclick="setPrompt('魔法森林，发光的蘑菇，精灵，梦幻氛围')">魔法森林</span>
+        </div>
+
+        <div class="input-group">
+            <textarea id="prompt-input" placeholder="输入提示词... (例如: 一个在雨中撑伞的女孩)"></textarea>
+        </div>
+
+        <div class="controls">
+            <button class="secondary" id="optimize-btn">✨ 优化提示词</button>
+            <button id="generate-btn">🎨 生成图片</button>
+        </div>
+
+        <div id="result-area">
+            <div class="loading" id="loading">正在生成中，请稍候...</div>
+            <img id="result-image" alt="Result">
+            <p id="result-text" style="white-space: pre-wrap; margin-bottom: 10px;"></p>
+            <a href="#" class="download-btn" id="download-link" download="generated-image.png">📥 下载图片</a>
+        </div>
+    </div>
+
+    <script>
+        // API Integration
+        const API_BASE = '/api';
+
+        const promptInput = document.getElementById('prompt-input');
+        const optimizeBtn = document.getElementById('optimize-btn');
+        const generateBtn = document.getElementById('generate-btn');
+        const loading = document.getElementById('loading');
+        const resultImage = document.getElementById('result-image');
+        const resultText = document.getElementById('result-text');
+        const downloadLink = document.getElementById('download-link');
+
+        // Set Prompt from Template
+        window.setPrompt = function(text) {
+            promptInput.value = text;
+        }
+
+        // Optimize Prompt
+        optimizeBtn.addEventListener('click', async () => {
+            const prompt = promptInput.value;
+            if (!prompt) return alert('请输入提示词');
+            
+            loading.style.display = 'block';
+            optimizeBtn.disabled = true;
+            
+            try {
+                const res = await fetch(`${API_BASE}/optimize`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt })
+                });
+                const data = await res.json();
+                if (data.optimizedPrompt) {
+                    promptInput.value = data.optimizedPrompt;
+                } else {
+                    alert('优化失败');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('优化出错');
+            } finally {
+                loading.style.display = 'none';
+                optimizeBtn.disabled = false;
+            }
+        });
+
+        // Generate Image
+        generateBtn.addEventListener('click', async () => {
+            const prompt = promptInput.value;
+            
+            if (!prompt) return alert('请输入提示词');
+
+            loading.style.display = 'block';
+            resultImage.style.display = 'none';
+            downloadLink.style.display = 'none';
+            resultText.innerText = '';
+            generateBtn.disabled = true;
+
+            const formData = new FormData();
+            formData.append('prompt', prompt);
+
+            try {
+                const res = await fetch(`${API_BASE}/generate`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                
+                if (data.imageUrl) {
+                    resultImage.src = data.imageUrl;
+                    resultImage.style.display = 'block';
+                    downloadLink.href = data.imageUrl;
+                    downloadLink.style.display = 'inline-block';
+                }
+                
+                if (data.description) {
+                    resultText.innerText = data.description;
+                }
+
+                if (!data.imageUrl && !data.description) {
+                     resultText.innerText = "未收到结果，请重试。";
+                }
+
+            } catch (err) {
+                console.error(err);
+                resultText.innerText = '生成出错: ' + err.message;
+            } finally {
+                loading.style.display = 'none';
+                generateBtn.disabled = false;
+            }
+        });
+
+        // Simple Particle Background
+        (function() {
+            const canvas = document.getElementById('particles-js');
+            const ctx = canvas.getContext('2d');
+            let width, height;
+            let particles = [];
+
+            function resize() {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+            }
+            window.addEventListener('resize', resize);
+            resize();
+
+            class Particle {
+                constructor() {
+                    this.reset();
+                }
+                reset() {
+                    this.x = Math.random() * width;
+                    this.y = Math.random() * height;
+                    this.vx = (Math.random() - 0.5) * 0.5;
+                    this.vy = (Math.random() - 0.5) * 0.5;
+                    this.size = Math.random() * 2 + 0.5;
+                    this.color = `rgba(0, 243, 255, ${Math.random() * 0.5})`;
+                }
+                update() {
+                    this.x += this.vx;
+                    this.y += this.vy;
+                    if (this.x < 0 || this.x > width) this.vx *= -1;
+                    if (this.y < 0 || this.y > height) this.vy *= -1;
+                }
+                draw() {
+                    ctx.fillStyle = this.color;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+
+            for(let i=0; i<100; i++) particles.push(new Particle());
+
+            function animate() {
+                ctx.clearRect(0, 0, width, height);
+                particles.forEach(p => {
+                    p.update();
+                    p.draw();
+                });
+                requestAnimationFrame(animate);
+            }
+            animate();
+        })();
+    </script>
+</body>
+</html>
