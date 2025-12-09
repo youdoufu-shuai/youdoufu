@@ -117,6 +117,8 @@ app.post('/api/generate-text', upload.none(), async (req, res) => {
 
         try {
             console.log("Trying /images/generations with nano-banana-2-4k...");
+            
+            // Explicitly set timeout for API request to avoid 502/504 from upstream
             const imageResponse = await axios.post(`${PLATO_API_URL}/images/generations`, {
                 model: 'nano-banana-2-4k', 
                 prompt: prompt,
@@ -126,7 +128,8 @@ app.post('/api/generate-text', upload.none(), async (req, res) => {
                 headers: {
                     'Authorization': `Bearer ${PLATO_API_KEY}`,
                     'Content-Type': 'application/json'
-                }
+                },
+                timeout: 120000 // 120s timeout for image generation
             });
             
             if (imageResponse.data && imageResponse.data.data && imageResponse.data.data.length > 0) {
@@ -148,7 +151,8 @@ app.post('/api/generate-text', upload.none(), async (req, res) => {
                     headers: {
                         'Authorization': `Bearer ${PLATO_API_KEY}`,
                         'Content-Type': 'application/json'
-                    }
+                    },
+                    timeout: 120000 // 120s timeout for fallback
                 });
                 imageUrl = fallbackResponse.data.data[0].url;
             } catch (fallbackError) {
@@ -245,7 +249,8 @@ app.post('/api/generate-image', upload.single('image'), async (req, res) => {
                 headers: {
                     'Authorization': `Bearer ${PLATO_API_KEY}`,
                     'Content-Type': 'application/json'
-                }
+                },
+                timeout: 120000 // 120s timeout for image generation
             });
             
             if (imageResponse.data && imageResponse.data.data && imageResponse.data.data.length > 0) {
