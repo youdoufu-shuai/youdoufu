@@ -8,10 +8,21 @@ const path = require('path');
 const morgan = require('morgan');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
-require('dotenv').config();
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 const app = express();
 const port = process.env.PORT || 3011;
+
+// Define API Configuration with defaults for robustness
+const PLATO_API_URL = process.env.PLATO_API_URL || 'https://one-api.bltcy.top/v1';
+const PLATO_API_KEY = process.env.PLATO_API_KEY || 'sk-VyK6G645s0AIgIsKp2cWkXVz3Z4Srlp3FW8k9YQ7zKQuIdjv';
+
+console.log('----------------------------------------');
+console.log('Server Configuration:');
+console.log(`PORT: ${port}`);
+console.log(`PLATO_API_URL: ${PLATO_API_URL}`);
+console.log(`PLATO_API_KEY: ${PLATO_API_KEY ? 'Set (starts with ' + PLATO_API_KEY.substring(0, 3) + ')' : 'Not Set'}`);
+console.log('----------------------------------------');
 
 // Middleware
 app.use(morgan('dev')); // Logging
@@ -44,9 +55,6 @@ const generatedImagesDir = path.join(__dirname, 'generated_images');
 if (!fs.existsSync(generatedImagesDir)) {
     fs.mkdirSync(generatedImagesDir, { recursive: true });
 }
-
-const PLATO_API_URL = process.env.PLATO_API_URL;
-const PLATO_API_KEY = process.env.PLATO_API_KEY;
 
 // Helper to encode image to base64
 const bufferToBase64 = (buffer, mimetype) => {
