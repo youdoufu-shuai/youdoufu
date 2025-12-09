@@ -218,7 +218,6 @@
         </div>
 
         <div class="controls">
-            <button class="secondary" id="optimize-btn">✨ 优化提示词</button>
             <button id="generate-btn">🎨 生成图片</button>
         </div>
 
@@ -235,7 +234,6 @@
         const API_BASE = '/api';
 
         const promptInput = document.getElementById('prompt-input');
-        const optimizeBtn = document.getElementById('optimize-btn');
         const generateBtn = document.getElementById('generate-btn');
         const loading = document.getElementById('loading');
         const resultImage = document.getElementById('result-image');
@@ -246,35 +244,6 @@
         window.setPrompt = function(text) {
             promptInput.value = text;
         }
-
-        // Optimize Prompt
-        optimizeBtn.addEventListener('click', async () => {
-            const prompt = promptInput.value;
-            if (!prompt) return alert('请输入提示词');
-            
-            loading.style.display = 'block';
-            optimizeBtn.disabled = true;
-            
-            try {
-                const res = await fetch(`${API_BASE}/optimize`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ prompt })
-                });
-                const data = await res.json();
-                if (data.optimizedPrompt) {
-                    promptInput.value = data.optimizedPrompt;
-                } else {
-                    alert('优化失败');
-                }
-            } catch (err) {
-                console.error(err);
-                alert('优化出错');
-            } finally {
-                loading.style.display = 'none';
-                optimizeBtn.disabled = false;
-            }
-        });
 
         // Generate Image
         generateBtn.addEventListener('click', async () => {

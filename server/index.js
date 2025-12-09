@@ -14,7 +14,7 @@ const app = express();
 const port = process.env.PORT || 3011;
 
 // Define API Configuration with defaults for robustness
-const PLATO_API_URL = process.env.PLATO_API_URL || 'https://one-api.bltcy.top/v1';
+const PLATO_API_URL = process.env.PLATO_API_URL || 'https://api.bltcy.ai/v1';
 const PLATO_API_KEY = process.env.PLATO_API_KEY || 'sk-VyK6G645s0AIgIsKp2cWkXVz3Z4Srlp3FW8k9YQ7zKQuIdjv';
 
 console.log('----------------------------------------');
@@ -61,43 +61,6 @@ const bufferToBase64 = (buffer, mimetype) => {
     return `data:${mimetype};base64,${buffer.toString('base64')}`;
 };
 
-// Route: Optimize Prompt
-app.post('/api/optimize', async (req, res) => {
-    try {
-        const { prompt } = req.body;
-        
-        if (!prompt) {
-            return res.status(400).json({ error: 'Prompt is required' });
-        }
-
-        const response = await axios.post(`${PLATO_API_URL}/chat/completions`, {
-            model: 'nano-banana-2-4k',
-            messages: [
-                {
-                    role: 'system',
-                    content: 'You are a helpful AI assistant. Your task is to optimize the user\'s image generation prompt. Make it more descriptive, artistic, and suitable for high-quality image generation. Return ONLY the optimized prompt.'
-                },
-                {
-                    role: 'user',
-                    content: prompt
-                }
-            ]
-        }, {
-            headers: {
-                'Authorization': `Bearer ${PLATO_API_KEY}`,
-                'Content-Type': 'application/json'
-            }
-        });
-
-        const optimizedPrompt = response.data.choices[0].message.content;
-        res.json({ optimizedPrompt });
-
-    } catch (error) {
-        console.error('Error optimizing prompt:', error.response ? error.response.data : error.message);
-        res.status(500).json({ error: 'Failed to optimize prompt' });
-    }
-});
-
 // Serve generated images
 app.use('/generated_images', express.static(path.join(__dirname, 'generated_images')));
 
@@ -129,7 +92,7 @@ app.post('/api/generate-text', upload.none(), async (req, res) => {
                     'Authorization': `Bearer ${PLATO_API_KEY}`,
                     'Content-Type': 'application/json'
                 },
-                timeout: 120000 // 120s timeout for image generation
+                timeout: 300000 // 300s timeout for image generation
             });
             
             if (imageResponse.data && imageResponse.data.data && imageResponse.data.data.length > 0) {
@@ -152,7 +115,7 @@ app.post('/api/generate-text', upload.none(), async (req, res) => {
                         'Authorization': `Bearer ${PLATO_API_KEY}`,
                         'Content-Type': 'application/json'
                     },
-                    timeout: 120000 // 120s timeout for fallback
+                    timeout: 300000 // 300s timeout for fallback
                 });
                 imageUrl = fallbackResponse.data.data[0].url;
             } catch (fallbackError) {
@@ -180,7 +143,7 @@ app.post('/api/generate-text', upload.none(), async (req, res) => {
                         url: imageUrl,
                         method: 'GET',
                         responseType: 'stream',
-                        timeout: 60000 // 60s timeout for download
+                        timeout: 300000 // 300s timeout for download
                     });
 
                     imgStreamResponse.data.pipe(writer);
@@ -230,27 +193,28 @@ app.post('/api/generate-image', upload.single('image'), async (req, res) => {
         let imageUrl = null;
 
         try {
-            console.log("Trying /images/generations with nano-banana-2-4k (Img2Img)...");
+            console.log("Trying /images/edits with nano-banana-2-4k (Img2Img)...");
             
-            // Construct payload for Img2Img
-            // Common patterns for SD via OneAPI:
-            // 1. field 'image' with base64
-            // 2. field 'init_images' array
-            
-            const payload = {
-                model: 'nano-banana-2-4k',
-                prompt: prompt || "optimize image", // Provide default prompt if missing
-                n: 1,
-                size: "1024x1024",
-                image: base64Image // Trying generic 'image' field with Data URI
-            };
+            // Construct FormData payload for Img2Img (Standard OpenAI /images/edits format)
+            const form = new FormData();
+            form.append('model', 'nano-banana-2-4k');
+            form.append('prompt', prompt || "optimize image");
+            form.append('n', 1);
+            form.append('size', "1024x1024");
+            form.append('image', imageFile.buffer, {
+                filename: 'input.png',
+                contentType: imageFile.mimetype
+            });
 
-            const imageResponse = await axios.post(`${PLATO_API_URL}/images/generations`, payload, {
+            // We need to get headers from the form-data instance
+            const formHeaders = form.getHeaders();
+
+            const imageResponse = await axios.post(`${PLATO_API_URL}/images/edits`, form, {
                 headers: {
                     'Authorization': `Bearer ${PLATO_API_KEY}`,
-                    'Content-Type': 'application/json'
+                    ...formHeaders
                 },
-                timeout: 120000 // 120s timeout for image generation
+                timeout: 300000 // 300s timeout for image generation
             });
             
             if (imageResponse.data && imageResponse.data.data && imageResponse.data.data.length > 0) {
@@ -285,7 +249,7 @@ app.post('/api/generate-image', upload.single('image'), async (req, res) => {
                         url: imageUrl,
                         method: 'GET',
                         responseType: 'stream',
-                        timeout: 60000 // 60s timeout for download
+                        timeout: 300000 // 300s timeout for download
                     });
 
                     imgStreamResponse.data.pipe(writer);
