@@ -212,7 +212,8 @@ app.post('/api/generate', upload.single('image'), async (req, res) => {
                         writer.on('error', reject);
                     });
 
-                    const localUrl = `http://localhost:${port}/generated_images/${imageFileName}`;
+                    // Return relative path so it works on any domain/deployment
+                    const localUrl = `/generated_images/${imageFileName}`;
                     
                     res.json({
                         imageUrl: localUrl,

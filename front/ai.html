@@ -248,6 +248,10 @@
         </div>
 
         <div class="templates">
+            <span class="tag" onclick="setPrompt('以图片游戏人物为基础，生成一张三拼图格式的艺术感写真图，每张图固定比例为3:4，海边写真图，场景为海边沙滩，天空呈现夕阳晚霞，海面平静，画面中有人物和参考图一致，上部第一张为近景，站在沙滩上的背影，头发被风吹起，添加中英字幕“海的那边是什么” “ What is behind the sea?”。中部第2张是手持橙色花束，侧身站立于海边，添加中英字幕，“你不用告诉我” “ You dont have to tell me”。下部第三张是面部特写，头发随风飘动，添加中英字幕，“我自己会去看” “ I will go to see it mys')">3D渲染</span>
+            <span class="tag" onclick="setPrompt('Using the nano-banana model, a commercial 1/7 scale figurine of the character in the picture was created, depicting a realistic style and a realistic environment. The figurine is placed on a computer desk with a round transparent acrylic base. There is no text on the base. The computer screen shows the Zbrush modeling process of the figurine. Next to the computer screen is a BANDAI-style toy box with the original painting printed on it. Picture ratio 16:9.')">手办化</span>
+            <span class="tag" onclick="setPrompt('以图片游戏人物为基础，生成一张三拼图格式的艺术感写真图，每张图固定比例为3:4，雪景写真图，场景为圣诞风格的雪景，天空呈现夕阳晚霞，海面平静，画面中有人物和参考图一致，上部第一张为近景，站在雪景上的背影，头发被风吹起，添加中英字幕“雪花落下的速度是5米每秒” “ The speed of falling snowflakes is 5 meters per second.”。中部第2张是手持橙色花束，侧身站立于海边，添加中英字幕，“在雪花飘落之前” “Before the snow falls.”。下部第三张是面部特写，头发随风飘动，添加中英字幕，“我会奔向你” “ I will run to your side')">下雪</span>
+            <span class="tag" onclick="setPrompt('3D渲染，Blender风格，极简主义')">3D渲染</span>
             <span class="tag" onclick="setPrompt('赛博朋克风格，霓虹灯光，高细节')">赛博朋克</span>
             <span class="tag" onclick="setPrompt('水彩画风格，柔和的色彩，艺术感')">水彩画</span>
             <span class="tag" onclick="setPrompt('吉卜力风格，动漫，清新自然')">吉卜力</span>
@@ -275,7 +279,8 @@
 
     <script>
         // API Integration
-        const API_BASE = 'http://localhost:3011/api';
+        // Use relative path for API calls to support deployment
+        const API_BASE = '/api';
 
         const imageUpload = document.getElementById('image-upload');
         const preview = document.getElementById('preview');
