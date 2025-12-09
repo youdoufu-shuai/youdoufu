@@ -101,40 +101,46 @@ app.post('/api/optimize', async (req, res) => {
 // Serve generated images
 app.use('/generated_images', express.static(path.join(__dirname, 'generated_images')));
 
-// Route: Generate Image
-app.post('/api/generate', upload.single('image'), async (req, res) => {
+// Route: Text to Image (txt2img)
+app.post('/api/generate-text', upload.none(), async (req, res) => {
     try {
         const { prompt } = req.body;
-        const imageFile = req.file;
 
-        if (!imageFile && !prompt) {
-            return res.status(400).json({ error: 'Image or Prompt is required' });
+        if (!prompt) {
+            return res.status(400).json({ error: 'Prompt is required' });
         }
 
-        // Try using Gemini 3 Pro for everything first (as user requested)
-        // Some OneAPI providers map "draw..." requests in chat completions to image generation
-        // OR return a markdown image.
-        
-        let generationPrompt = prompt;
-        let base64Image = null;
+        console.log("Starting Text-to-Image generation with prompt:", prompt);
 
-        if (imageFile) {
-            base64Image = bufferToBase64(imageFile.buffer, imageFile.mimetype);
-        }
-
-        console.log("Starting generation with prompt:", prompt);
+        let imageUrl = null;
+        let content = prompt;
 
         try {
-            // Attempt 1: Direct Image Generation with nano-banana-2-4k
-            // Skipping Chat Completion since it caused "bad_response_body" error
+            console.log("Trying /images/generations with nano-banana-2-4k...");
+            const imageResponse = await axios.post(`${PLATO_API_URL}/images/generations`, {
+                model: 'nano-banana-2-4k', 
+                prompt: prompt,
+                n: 1,
+                size: "1024x1024"
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${PLATO_API_KEY}`,
+                    'Content-Type': 'application/json'
+                }
+            });
             
-            let imageUrl = null;
-            let content = prompt; // Default description is the prompt itself
-
+            if (imageResponse.data && imageResponse.data.data && imageResponse.data.data.length > 0) {
+                imageUrl = imageResponse.data.data[0].url;
+                console.log("nano-banana-2-4k generation successful:", imageUrl);
+            }
+        } catch (imgGenError) {
+            console.log("Text-to-Image nano-banana-2-4k failed:", imgGenError.response ? imgGenError.response.data : imgGenError.message);
+            
+            // Fallback to DALL-E 3
+            console.log("Falling back to DALL-E 3...");
             try {
-                console.log("Trying /images/generations with nano-banana-2-4k...");
-                const imageResponse = await axios.post(`${PLATO_API_URL}/images/generations`, {
-                    model: 'nano-banana-2-4k', 
+                const fallbackResponse = await axios.post(`${PLATO_API_URL}/images/generations`, {
+                    model: 'dall-e-3',
                     prompt: prompt,
                     n: 1,
                     size: "1024x1024"
@@ -144,88 +150,159 @@ app.post('/api/generate', upload.single('image'), async (req, res) => {
                         'Content-Type': 'application/json'
                     }
                 });
-                
-                if (imageResponse.data && imageResponse.data.data && imageResponse.data.data.length > 0) {
-                    imageUrl = imageResponse.data.data[0].url;
-                    console.log("nano-banana-2-4k generation successful:", imageUrl);
-                }
-            } catch (imgGenError) {
-                console.log("Direct image generation with nano-banana-2-4k failed:", imgGenError.response ? imgGenError.response.data : imgGenError.message);
-                
-                // Fallback to DALL-E 3
-                console.log("Falling back to DALL-E 3...");
-                try {
-                    const fallbackResponse = await axios.post(`${PLATO_API_URL}/images/generations`, {
-                        model: 'dall-e-3',
-                        prompt: prompt,
-                        n: 1,
-                        size: "1024x1024"
-                    }, {
-                        headers: {
-                            'Authorization': `Bearer ${PLATO_API_KEY}`,
-                            'Content-Type': 'application/json'
-                        }
-                    });
-                    imageUrl = fallbackResponse.data.data[0].url;
-                } catch (fallbackError) {
-                    console.error("Fallback DALL-E 3 failed:", fallbackError.response ? fallbackError.response.data : fallbackError.message);
-                    throw new Error("All image generation attempts failed.");
-                }
+                imageUrl = fallbackResponse.data.data[0].url;
+            } catch (fallbackError) {
+                console.error("Fallback DALL-E 3 failed:", fallbackError.response ? fallbackError.response.data : fallbackError.message);
+                throw new Error("All image generation attempts failed.");
             }
+        }
 
-            if (imageUrl) {
-                // Try to DOWNLOAD and SAVE the image
-                try {
-                    const imageFileName = `gen-${Date.now()}.png`;
-                    const localImagePath = path.join(generatedImagesDir, imageFileName);
-                    
-                    const writer = fs.createWriteStream(localImagePath);
-                    const imgStreamResponse = await axios({
-                        url: imageUrl,
-                        method: 'GET',
-                        responseType: 'stream',
-                        timeout: 30000 // 30s timeout for download
-                    });
+        if (imageUrl) {
+            // Try to DOWNLOAD and SAVE the image
+            try {
+                const imageFileName = `gen-txt-${Date.now()}.png`;
+                const localImagePath = path.join(generatedImagesDir, imageFileName);
+                
+                const writer = fs.createWriteStream(localImagePath);
+                const imgStreamResponse = await axios({
+                    url: imageUrl,
+                    method: 'GET',
+                    responseType: 'stream',
+                    timeout: 30000
+                });
 
-                    imgStreamResponse.data.pipe(writer);
+                imgStreamResponse.data.pipe(writer);
 
-                    await new Promise((resolve, reject) => {
-                        writer.on('finish', resolve);
-                        writer.on('error', reject);
-                    });
+                await new Promise((resolve, reject) => {
+                    writer.on('finish', resolve);
+                    writer.on('error', reject);
+                });
 
-                    // Return relative path so it works on any domain/deployment
-                    const localUrl = `/generated_images/${imageFileName}`;
-                    
-                    res.json({
-                        imageUrl: localUrl,
-                        description: content // Return the prompt as description
-                    });
-                } catch (downloadError) {
-                    console.error("Failed to download image, returning remote URL:", downloadError.message);
-                    // Fallback to remote URL if download fails
-                    res.json({
-                        imageUrl: imageUrl,
-                        description: content
-                    });
-                }
-
-            } else {
-                 res.json({
-                    imageUrl: null,
-                    description: content,
-                    message: "Could not generate image URL."
+                const localUrl = `/generated_images/${imageFileName}`;
+                
+                res.json({
+                    imageUrl: localUrl,
+                    description: content
+                });
+            } catch (downloadError) {
+                console.error("Failed to download image, returning remote URL:", downloadError.message);
+                res.json({
+                    imageUrl: imageUrl,
+                    description: content
                 });
             }
-
-        } catch (innerError) {
-             console.error('Generation Pipeline Error:', innerError.response ? innerError.response.data : innerError.message);
-             res.status(500).json({ error: 'Generation failed: ' + innerError.message });
+        } else {
+            throw new Error("No image URL received from API");
         }
 
     } catch (error) {
-        console.error('Server Error:', error.response ? error.response.data : error.message);
-        res.status(500).json({ error: 'Failed to process request' });
+        console.error("Text-to-Image Error:", error.message);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Route: Image to Image (img2img)
+app.post('/api/generate-image', upload.single('image'), async (req, res) => {
+    try {
+        const { prompt } = req.body;
+        const imageFile = req.file;
+
+        if (!imageFile) {
+            return res.status(400).json({ error: 'Image is required for Image-to-Image generation' });
+        }
+
+        console.log("Starting Image-to-Image generation with prompt:", prompt || "(No prompt provided)");
+        
+        // Convert image to base64
+        // Many OneAPI providers expect just the base64 string without the data URI prefix for 'image' field,
+        // OR a full data URI. We will try full data URI first as it's more standard for 'image_url' or some adapters.
+        // However, for 'image' field in some SD wrappers, it might want raw base64.
+        // Let's try standard Data URI first.
+        const base64Image = bufferToBase64(imageFile.buffer, imageFile.mimetype);
+        
+        // Also prepare raw base64 just in case
+        // const rawBase64 = imageFile.buffer.toString('base64');
+
+        let imageUrl = null;
+
+        try {
+            console.log("Trying /images/generations with nano-banana-2-4k (Img2Img)...");
+            
+            // Construct payload for Img2Img
+            // Common patterns for SD via OneAPI:
+            // 1. field 'image' with base64
+            // 2. field 'init_images' array
+            
+            const payload = {
+                model: 'nano-banana-2-4k',
+                prompt: prompt || "optimize image", // Provide default prompt if missing
+                n: 1,
+                size: "1024x1024",
+                image: base64Image // Trying generic 'image' field with Data URI
+            };
+
+            const imageResponse = await axios.post(`${PLATO_API_URL}/images/generations`, payload, {
+                headers: {
+                    'Authorization': `Bearer ${PLATO_API_KEY}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (imageResponse.data && imageResponse.data.data && imageResponse.data.data.length > 0) {
+                imageUrl = imageResponse.data.data[0].url;
+                console.log("nano-banana-2-4k Img2Img successful:", imageUrl);
+            }
+        } catch (imgGenError) {
+            console.log("Image-to-Image nano-banana-2-4k failed:", imgGenError.response ? imgGenError.response.data : imgGenError.message);
+            
+            // If first attempt fails, maybe try with 'images' array or just raw base64? 
+            // Or maybe it is an OpenAI 'edits' endpoint wrapper?
+            // For now, let's just error out or try DALL-E 2/3 variations if supported (DALL-E 3 doesn't support img2img/variations via API yet commonly)
+            // Let's throw error to let user know config might be wrong
+             throw new Error("Image-to-Image generation failed. The model might not support the provided format or image input.");
+        }
+
+        if (imageUrl) {
+             // Try to DOWNLOAD and SAVE the image
+             try {
+                const imageFileName = `gen-img-${Date.now()}.png`;
+                const localImagePath = path.join(generatedImagesDir, imageFileName);
+                
+                const writer = fs.createWriteStream(localImagePath);
+                const imgStreamResponse = await axios({
+                    url: imageUrl,
+                    method: 'GET',
+                    responseType: 'stream',
+                    timeout: 30000
+                });
+
+                imgStreamResponse.data.pipe(writer);
+
+                await new Promise((resolve, reject) => {
+                    writer.on('finish', resolve);
+                    writer.on('error', reject);
+                });
+
+                const localUrl = `/generated_images/${imageFileName}`;
+                
+                res.json({
+                    imageUrl: localUrl,
+                    description: prompt
+                });
+            } catch (downloadError) {
+                console.error("Failed to download image, returning remote URL:", downloadError.message);
+                res.json({
+                    imageUrl: imageUrl,
+                    description: prompt
+                });
+            }
+        } else {
+             throw new Error("No image URL received from API");
+        }
+
+    } catch (error) {
+        console.error("Image-to-Image Error:", error.message);
+        res.status(500).json({ error: error.message });
     }
 });
 

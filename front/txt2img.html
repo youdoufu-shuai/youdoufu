@@ -292,7 +292,7 @@
             formData.append('prompt', prompt);
 
             try {
-                const res = await fetch(`${API_BASE}/generate`, {
+                const res = await fetch(`${API_BASE}/generate-text`, {
                     method: 'POST',
                     body: formData
                 });
