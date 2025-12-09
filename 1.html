@@ -284,11 +284,10 @@
             border: 1px solid rgba(0, 243, 255, 0.2);
             position: relative;
             transition: all 0.3s;
+            text-decoration: none;
+            display: block;
             color: var(--text-color);
             overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
         }
 
         .block-card::before {
@@ -324,29 +323,6 @@
             color: var(--secondary-color);
         }
 
-        /* Module Buttons */
-        .module-btn {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 10px 30px;
-            background: transparent;
-            border: 1px solid var(--primary-color);
-            color: var(--primary-color);
-            text-decoration: none;
-            border-radius: 5px;
-            transition: all 0.3s;
-            font-size: 1rem;
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .module-btn:hover {
-            background: var(--primary-color);
-            color: #000;
-            box-shadow: 0 0 15px rgba(0, 243, 255, 0.5);
-        }
-
         /* Start Button */
         #start-btn {
             position: fixed;
@@ -371,38 +347,6 @@
             background: var(--primary-color);
             color: #000;
             box-shadow: 0 0 60px rgba(0, 243, 255, 0.8);
-        }
-
-        /* Skip Button */
-        #skip-btn {
-            position: fixed;
-            bottom: 50px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 10px 30px;
-            font-size: 1rem;
-            background: rgba(0,0,0,0.5);
-            color: var(--text-color);
-            border: 1px solid var(--text-color);
-            cursor: pointer;
-            z-index: 200;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            transition: all 0.3s;
-            border-radius: 20px;
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        #skip-btn.visible {
-            opacity: 0.7;
-            pointer-events: auto;
-        }
-
-        #skip-btn:hover {
-            background: var(--text-color);
-            color: #000;
-            opacity: 1;
         }
 
         /* Animations */
@@ -435,99 +379,6 @@
             .bg-body-img { right: -50px; opacity: 0.1; }
             #start-btn { padding: 15px 30px; font-size: 1.2rem; width: 80%; }
         }
-
-        /* Settings UI */
-        .settings-control {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            z-index: 1000;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: rgba(0, 0, 0, 0.5);
-            border: 2px solid var(--text-color);
-            color: var(--text-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 1.5rem;
-        }
-
-        .settings-control:hover {
-            background: var(--text-color);
-            color: #000;
-            transform: rotate(90deg);
-        }
-
-        .settings-panel {
-            position: fixed;
-            bottom: 100px;
-            right: 30px;
-            width: 300px;
-            background: rgba(10, 10, 20, 0.95);
-            border: 1px solid var(--primary-color);
-            padding: 20px;
-            z-index: 1000;
-            transform: translateX(120%);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 0 20px rgba(0, 243, 255, 0.2);
-        }
-
-        .settings-panel.active {
-            transform: translateX(0);
-        }
-
-        .settings-panel h3 {
-            color: var(--primary-color);
-            margin-bottom: 20px;
-            border-bottom: 1px solid var(--primary-color);
-            padding-bottom: 10px;
-            font-size: 1.2rem;
-            text-transform: uppercase;
-        }
-
-        .setting-group {
-            margin-bottom: 20px;
-        }
-
-        .setting-group label {
-            display: block;
-            margin-bottom: 10px;
-            color: var(--secondary-color);
-            font-size: 0.9rem;
-            font-weight: bold;
-        }
-
-        .setting-options {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .setting-btn {
-            background: transparent;
-            border: 1px solid #444;
-            color: #aaa;
-            padding: 5px 10px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            transition: all 0.2s;
-            flex: 1 1 auto;
-        }
-
-        .setting-btn:hover {
-            border-color: var(--primary-color);
-            color: var(--text-color);
-        }
-
-        .setting-btn.active {
-            background: var(--primary-color);
-            color: #000;
-            border-color: var(--primary-color);
-        }
     </style>
 </head>
 <body>
@@ -539,7 +390,6 @@
     <div id="warp-overlay" style="position:fixed; top:0; left:0; width:100%; height:100%; background:white; opacity:0; pointer-events:none; z-index:9999; transition: opacity 0.5s ease-in-out;"></div>
 
     <button id="start-btn">启动系统</button>
-    <button id="skip-btn">跳过动画</button>
 
     <div id="intro-overlay">
         <div class="intro-text" id="status-text">系统待机中...</div>
@@ -549,36 +399,6 @@
     <div class="music-control" id="music-toggle" title="开关音乐">
         <i>🎵</i>
     </div>
-    
-    <!-- Settings Control -->
-    <div class="settings-control" id="settings-toggle" title="设置">
-        <i>⚙️</i>
-    </div>
-
-    <!-- Settings Panel -->
-    <div class="settings-panel" id="settings-panel">
-        <h3>系统设置</h3>
-        
-        <div class="setting-group">
-            <label>声浪样式 (Visualizer)</label>
-            <div class="setting-options">
-                <button class="setting-btn active" data-type="viz" data-value="bars">频谱柱</button>
-                <button class="setting-btn" data-type="viz" data-value="wave">波形线</button>
-                <button class="setting-btn" data-type="viz" data-value="circle">能量环</button>
-            </div>
-        </div>
-
-        <div class="setting-group">
-            <label>粒子特效 (Background)</label>
-            <div class="setting-options">
-                <button class="setting-btn active" data-type="effect" data-value="default">默认浮游</button>
-                <button class="setting-btn" data-type="effect" data-value="star-trail">星轨</button>
-                <button class="setting-btn" data-type="effect" data-value="three-body">三体运动</button>
-                <button class="setting-btn" data-type="effect" data-value="solar-storm">太阳风暴</button>
-            </div>
-        </div>
-    </div>
-
     <audio id="bg-music" loop crossorigin="anonymous">
         <source src="music/wasted.mp3" type="audio/mpeg">
     </audio>
@@ -589,7 +409,7 @@
             <div class="glitch-wrapper">
                 <div class="glitch" data-text="油豆腐">油豆腐🐷</div>
             </div>
-            <div class="subtitle">哈基米 · 🐷🐷 · 尼娅</div>
+            <div class="subtitle">哈基米 · 🐷🐷 · 尼娅/div>
         </section>
 
         <!-- About Section -->
@@ -598,7 +418,7 @@
             <div class="about-grid">
                 <div class="avatar-container">
                     <div class="avatar-glow"></div>
-                    <img src="https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAEMWydpN3U88WFmmmo7lx7fIemYo4YprQAC_yIAAjH4uFX8geSXHSuRCjYE.png" alt="Youdoufu" class="avatar-img">
+                    <img src="/usr/local/nginx/myweb/youdoufu/image/head.png" alt="Youdoufu" class="avatar-img">
                 </div>
                 <div class="about-text">
                     <p style="margin-bottom: 20px; font-size: 1.1rem; border-left: 3px solid var(--primary-color); padding-left: 15px;">
@@ -607,8 +427,7 @@
                         <strong>坐标:</strong> M78星云
                     </p>
                     <p style="color: #ccc;">
-                        我是暴怒大野🐷，喜欢暴怒，喜欢野🐗
-                    </p>
+                        我是暴怒大野🐷，喜欢暴怒，喜欢野🐗                   </p>
                 </div>
             </div>
         </section>
@@ -617,30 +436,21 @@
         <section class="section">
             <h2 class="section-title">核心导航</h2>
             <div class="bottom-blocks">
-                <!-- Toolbox Module -->
-                <div class="block-card">
+                <a href="javascript:void(0)" class="block-card">
                     <div class="block-icon">🛠️</div>
                     <h3 class="block-title">工具箱</h3>
-                    <p>简单好用的生产工具</p>
-                    <a href="ai.html" class="module-btn">AI 生图</a>
-                </div>
-
-                <!-- Game Module -->
-                <div class="block-card">
-                    <div class="block-icon">🎮</div>
-                    <h3 class="block-title">游戏</h3>
-                    <p>休闲娱乐与放松</p>
-                    <a href="javascript:void(0)" class="module-btn">水果忍者</a>
-                </div>
-
-                <!-- Blog Module -->
-                <div class="block-card">
+                    <p>高效开发的秘密武器库</p>
+                </a>
+                <a href="javascript:void(0)" class="block-card">
                     <div class="block-icon">📝</div>
                     <h3 class="block-title">博客</h3>
                     <p>记录技术探索的点滴心得</p>
-                    <a href="javascript:void(0)" class="module-btn">unity-blog-ctl</a>
-                    <a href="javascript:void(0)" class="module-btn">blog-lkp</a>
-                </div>
+                </a>
+                <a href="https://github.com/shuai-gif?tab=projects" target="_blank" class="block-card">
+                    <div class="block-icon">💻</div>
+                    <h3 class="block-title">GitHub</h3>
+                    <p>查看我的开源项目与代码</p>
+                </a>
             </div>
         </section>
 
@@ -660,42 +470,6 @@
         let isMusicPlaying = false;
         let isAudioInitialized = false;
 
-        let currentVizMode = 'bars'; // bars, wave, circle
-        let currentBgEffect = 'default'; // default, star-trail, three-body, solar-storm
-
-        // Settings UI Logic
-        const settingsToggle = document.getElementById('settings-toggle');
-        const settingsPanel = document.getElementById('settings-panel');
-        const settingBtns = document.querySelectorAll('.setting-btn');
-
-        settingsToggle.addEventListener('click', () => {
-            settingsPanel.classList.toggle('active');
-        });
-
-        settingBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const type = btn.dataset.type;
-                const value = btn.dataset.value;
-                
-                // Update UI
-                btn.parentElement.querySelectorAll('.setting-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-
-                // Update State
-                if (type === 'viz') {
-                    currentVizMode = value;
-                } else if (type === 'effect') {
-                    currentBgEffect = value;
-                    // Reset particles for new effect
-                    particles.forEach(p => {
-                        p.reset();
-                        p.targetX = null;
-                        p.targetY = null;
-                    });
-                }
-            });
-        });
-
         function initAudio() {
             if (isAudioInitialized) return;
             try {
@@ -704,7 +478,7 @@
                 const source = audioCtx.createMediaElementSource(audio);
                 source.connect(analyser);
                 analyser.connect(audioCtx.destination);
-                analyser.fftSize = 512; // Increased for better wave resolution
+                analyser.fftSize = 256;
                 bufferLength = analyser.frequencyBinCount;
                 dataArray = new Uint8Array(bufferLength);
                 isAudioInitialized = true;
@@ -726,56 +500,17 @@
             analyser.getByteFrequencyData(dataArray);
             vCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
 
-            if (currentVizMode === 'bars') {
-                const barWidth = (visualizerCanvas.width / bufferLength) * 2.5;
-                let barHeight;
-                let x = 0;
-                for(let i = 0; i < bufferLength; i++) {
-                    barHeight = dataArray[i] / 2;
-                    vCtx.fillStyle = `rgb(${barHeight + 100}, 50, 255)`; 
-                    vCtx.fillRect(x, visualizerCanvas.height - barHeight, barWidth, barHeight);
-                    x += barWidth + 1;
-                }
-            } 
-            else if (currentVizMode === 'wave') {
-                vCtx.lineWidth = 2;
-                vCtx.strokeStyle = 'var(--primary-color)';
-                vCtx.beginPath();
-                const sliceWidth = visualizerCanvas.width / bufferLength;
-                let x = 0;
-                for(let i = 0; i < bufferLength; i++) {
-                    const v = dataArray[i] / 128.0;
-                    const y = visualizerCanvas.height - (v * visualizerCanvas.height / 2);
-                    if(i === 0) vCtx.moveTo(x, y);
-                    else vCtx.lineTo(x, y);
-                    x += sliceWidth;
-                }
-                vCtx.lineTo(visualizerCanvas.width, visualizerCanvas.height/2);
-                vCtx.stroke();
-            }
-            else if (currentVizMode === 'circle') {
-                const cx = visualizerCanvas.width / 2;
-                const cy = visualizerCanvas.height / 2 + 50; // Push down a bit
-                const radius = 50;
-                
-                for(let i = 0; i < bufferLength; i++) {
-                    const barHeight = dataArray[i] / 2;
-                    const rad = (i / bufferLength) * Math.PI; // Half circle (top)
-                    // Mirror left and right
-                    [1, -1].forEach(side => {
-                        const x1 = cx + Math.cos(rad * side - Math.PI/2) * radius;
-                        const y1 = cy + Math.sin(rad * side - Math.PI/2) * radius;
-                        const x2 = cx + Math.cos(rad * side - Math.PI/2) * (radius + barHeight);
-                        const y2 = cy + Math.sin(rad * side - Math.PI/2) * (radius + barHeight);
-                        
-                        vCtx.beginPath();
-                        vCtx.moveTo(x1, y1);
-                        vCtx.lineTo(x2, y2);
-                        vCtx.strokeStyle = `hsl(${i/bufferLength * 360}, 100%, 50%)`;
-                        vCtx.lineWidth = 2;
-                        vCtx.stroke();
-                    });
-                }
+            const barWidth = (visualizerCanvas.width / bufferLength) * 2.5;
+            let barHeight;
+            let x = 0;
+
+            for(let i = 0; i < bufferLength; i++) {
+                barHeight = dataArray[i] / 2;
+                // Gradient color based on height
+                vCtx.fillStyle = `rgb(${barHeight + 100}, 50, 255)`; 
+                // Draw mirrored bars from bottom
+                vCtx.fillRect(x, visualizerCanvas.height - barHeight, barWidth, barHeight);
+                x += barWidth + 1;
             }
         }
 
@@ -825,7 +560,6 @@
         const canvas = document.getElementById('particles-js');
         const ctx = canvas.getContext('2d');
         const startBtn = document.getElementById('start-btn');
-        const skipBtn = document.getElementById('skip-btn');
         const introOverlay = document.getElementById('intro-overlay');
         const statusText = document.getElementById('status-text');
         const mainContent = document.getElementById('main-content');
@@ -919,88 +653,6 @@
 
                 // Normal target following with lerp
                 if (this.targetX !== null && currentState !== STATE_IDLE) {
-                    // ... existing launch logic ...
-                } 
-                
-                // Handle Main Page Idle Effects
-                if (currentState === STATE_IDLE && mainContent.classList.contains('visible')) {
-                     if (currentBgEffect === 'star-trail') {
-                         // Star Trail: Rotate around center
-                         const cx = width / 2;
-                         const cy = height / 2;
-                         const dx = this.x - cx;
-                         const dy = this.y - cy;
-                         const dist = Math.sqrt(dx*dx + dy*dy);
-                         const angle = Math.atan2(dy, dx);
-                         const newAngle = angle + (0.002 * (1000/dist)); // Faster near center
-                         this.x = cx + Math.cos(newAngle) * dist;
-                         this.y = cy + Math.sin(newAngle) * dist;
-                         return;
-                     } 
-                     else if (currentBgEffect === 'three-body') {
-                         // Three Body: 3 Attractors
-                         const t = Date.now() * 0.001;
-                         const cx = width / 2;
-                         const cy = height / 2;
-                         
-                         // 3 Suns positions
-                         const suns = [
-                             {x: cx + Math.cos(t)*300, y: cy + Math.sin(t*0.8)*200},
-                             {x: cx + Math.cos(t*0.5 + 2)*400, y: cy + Math.sin(t*0.6 + 2)*300},
-                             {x: cx + Math.cos(t*1.2 + 4)*200, y: cy + Math.sin(t*1.1 + 4)*200}
-                         ];
-
-                         // Find nearest sun
-                         let nearest = suns[0];
-                         let minDist = 99999;
-                         suns.forEach(s => {
-                             const d = Math.sqrt((this.x - s.x)**2 + (this.y - s.y)**2);
-                             if(d < minDist) { minDist = d; nearest = s; }
-                         });
-
-                         // Accelerate towards it
-                         const ax = (nearest.x - this.x) * 0.0005;
-                         const ay = (nearest.y - this.y) * 0.0005;
-                         this.vx += ax;
-                         this.vy += ay;
-                         this.vx *= 0.98; // Friction
-                         this.vy *= 0.98;
-                         this.x += this.vx;
-                         this.y += this.vy;
-                         return;
-                     }
-                     else if (currentBgEffect === 'solar-storm') {
-                         // Solar Storm: Explode from center
-                         const cx = width / 2;
-                         const cy = height / 2;
-                         
-                         // If too far or too slow, reset to center
-                         const dist = Math.sqrt((this.x - cx)**2 + (this.y - cy)**2);
-                         if (dist > Math.max(width, height) * 0.8 || (Math.abs(this.vx) < 0.1 && Math.abs(this.vy) < 0.1)) {
-                             this.x = cx + (Math.random()-0.5)*50;
-                             this.y = cy + (Math.random()-0.5)*50;
-                             const angle = Math.random() * Math.PI * 2;
-                             const speed = Math.random() * 10 + 2;
-                             this.vx = Math.cos(angle) * speed;
-                             this.vy = Math.sin(angle) * speed;
-                         }
-
-                         this.x += this.vx;
-                         this.y += this.vy;
-                         return;
-                     }
-                     else {
-                         // Default Floating
-                         this.x += this.vx;
-                         this.y += this.vy;
-                         if (this.x < 0 || this.x > width) this.vx *= -1;
-                         if (this.y < 0 || this.y > height) this.vy *= -1;
-                         return;
-                     }
-                }
-
-                if (this.targetX !== null && currentState !== STATE_IDLE) {
-
                     // Launch Logic: Rocket goes UP, Background goes DOWN
                     if (currentState === STATE_LAUNCH) {
                         if (!this.isBackground) {
@@ -1332,53 +984,7 @@
         animate();
 
         // --- LOGIC ---
-        let animationTimeouts = [];
-
-        function clearAllTimeouts() {
-            animationTimeouts.forEach(t => clearTimeout(t));
-            animationTimeouts = [];
-        }
-
-        function finishAnimation() {
-            clearAllTimeouts();
-            // Stop Shockwave
-            shockwaveActive = false;
-            shockwaveRadius = 0;
-            
-            // UI Cleanup
-            startBtn.style.opacity = '0';
-            startBtn.style.pointerEvents = 'none';
-            skipBtn.classList.remove('visible');
-            introOverlay.style.display = 'none';
-            const warpOverlay = document.getElementById('warp-overlay');
-            warpOverlay.style.opacity = '0'; // Ensure hidden
-
-            // Set Final State
-            currentState = STATE_IDLE; 
-            
-            // Reset particles for background loop
-            particles.forEach(p => {
-                p.reset();
-                p.targetX = null;
-                p.targetY = null;
-            });
-            
-            mainContent.classList.add('visible');
-            // Staggered reveal for sections
-            const sections = document.querySelectorAll('.section');
-            sections.forEach((sec, idx) => {
-                setTimeout(() => sec.classList.add('visible'), idx * 300);
-            });
-        }
-
-        skipBtn.addEventListener('click', () => {
-            finishAnimation();
-        });
-
         startBtn.addEventListener('click', () => {
-            // Show Skip Button
-            skipBtn.classList.add('visible');
-
             // 1. IMMEDIATE AUDIO START
             // Restart audio context if suspended
             try {
@@ -1393,81 +999,97 @@
                 }).catch(e => console.log("Audio play failed:", e));
             } catch(err) { console.error(err); }
 
-            // 2. UI TRANSITION
-            startBtn.style.opacity = '0';
-            startBtn.style.pointerEvents = 'none';
-            statusText.style.opacity = '1';
+            // UI Updates
+            startBtn.style.display = 'none';
+            statusText.style.opacity = 1;
 
-            // 3. ANIMATION SEQUENCE
+            // Sequence
             currentState = STATE_FORMING;
+            statusText.innerText = "系统：构建舰体";
             defineRocketShape();
-            statusText.innerText = "系统装载...";
 
-            animationTimeouts.push(setTimeout(() => {
+            setTimeout(() => {
                 currentState = STATE_IGNITION;
-                statusText.innerText = "引擎预热...";
-            }, 2000));
-
-            animationTimeouts.push(setTimeout(() => {
-                currentState = STATE_LAUNCH;
-                statusText.innerText = "发射!";
-                // Shockwave
+                statusText.innerText = "系统：点火序列";
+                statusText.style.color = "#ffaa00";
+                
+                // Start shockwave
                 shockwaveActive = true;
-                const shockInterval = setInterval(() => {
-                    shockwaveRadius += 50;
+                shockwaveRadius = 0;
+                const swInterval = setInterval(() => {
+                    shockwaveRadius += 15;
                     if (shockwaveRadius > width * 1.5) {
-                        clearInterval(shockInterval);
                         shockwaveActive = false;
-                        shockwaveRadius = 0;
+                        clearInterval(swInterval);
                     }
                 }, 16);
-            }, 3500));
-
-            // 4. ORBIT & VIEW CHANGE SEQUENCE
-            animationTimeouts.push(setTimeout(() => {
-                currentState = STATE_CELESTIAL_MORPH;
-                statusText.innerText = "进入轨道...";
-                defineRocketSide(); // Change view to side
-            }, 6000));
-
-            animationTimeouts.push(setTimeout(() => {
-                defineRocketRear(); // Change view to rear
-                statusText.innerText = "曲率加速...";
-            }, 9000));
-
-            animationTimeouts.push(setTimeout(() => {
-                defineSolarSystem();
-                statusText.innerText = "飞越太阳系...";
-            }, 12000));
-
-            animationTimeouts.push(setTimeout(() => {
-                defineGalaxy();
-                statusText.innerText = "跨越星系...";
-            }, 15000));
-
-            animationTimeouts.push(setTimeout(() => {
-                defineBlackHole();
-                statusText.innerText = "接近奇点...";
-            }, 18000));
-            
-            animationTimeouts.push(setTimeout(() => {
-                triggerBigBang();
-                statusText.innerText = "时空重塑...";
-            }, 21000));
-
-            // 5. FINAL REVEAL
-            animationTimeouts.push(setTimeout(() => {
-                introOverlay.style.display = 'none';
-                const warpOverlay = document.getElementById('warp-overlay');
-                warpOverlay.style.opacity = '1';
-                skipBtn.classList.remove('visible'); // Hide skip button before transition
                 
-                animationTimeouts.push(setTimeout(() => {
-                    warpOverlay.style.opacity = '0';
-                    finishAnimation();
-                }, 1000));
-            }, 22500)); 
+            }, 2000);
+
+            setTimeout(() => {
+                currentState = STATE_LAUNCH;
+                statusText.innerText = "起飞";
+                statusText.style.fontSize = "5rem";
+                statusText.style.color = "#fff";
+                setTimeout(() => statusText.style.opacity = 0, 1000);
+            }, 4000);
+
+            // Warp Flash Transition
+            setTimeout(() => {
+                const warp = document.getElementById('warp-overlay');
+                warp.style.opacity = 1;
+                setTimeout(() => { warp.style.opacity = 0; }, 500); // Fade out
+            }, 6500);
+
+            setTimeout(() => {
+                currentState = STATE_CELESTIAL_MORPH;
+                introOverlay.style.display = 'none';
+                mainContent.classList.add('visible');
+                
+                document.body.style.overflowX = 'hidden';
+                document.body.style.overflowY = 'auto';
+                
+                startCelestialCycle();
+            }, 7000);
         });
+
+        function startCelestialCycle() {
+            const shapes = [
+                { func: defineRocketSide, name: "侧视观测", duration: 6000 },
+                { func: defineSolarSystem, name: "太阳系", duration: 5000 },
+                { func: defineRocketRear, name: "后视推进", duration: 6000 },
+                { func: defineGalaxy, name: "银河", duration: 5000 },
+                { func: defineRocketTop, name: "俯视扫描", duration: 6000 },
+                { func: defineBlackHole, name: "黑洞", duration: 5000 },
+                { func: triggerBigBang, name: "宇宙大爆炸", duration: 3000 }
+            ];
+            
+            let index = 0;
+            
+            function nextShape() {
+                const shape = shapes[index];
+                
+                // If previous was big bang, we need to reset state from EXPLODE to MORPH
+                if (currentState === STATE_BIG_BANG_EXPLODE) {
+                     currentState = STATE_CELESTIAL_MORPH;
+                }
+
+                shape.func();
+                
+                index = (index + 1) % shapes.length;
+                setTimeout(nextShape, shape.duration);
+            }
+            nextShape();
+        }
+
+        // Observer
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) entry.target.classList.add('visible');
+            });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.section').forEach(s => observer.observe(s));
+
     </script>
 </body>
 </html>
