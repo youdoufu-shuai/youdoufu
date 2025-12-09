@@ -86,7 +86,7 @@ app.post('/api/generate-text', upload.none(), async (req, res) => {
                 model: 'nano-banana-2-2k', 
                 prompt: prompt,
                 n: 1,
-                size: "1024x1024"
+                size: "512x512"
             }, {
                 headers: {
                     'Authorization': `Bearer ${PLATO_API_KEY}`,
@@ -201,7 +201,7 @@ app.post('/api/generate-image', upload.single('image'), async (req, res) => {
             form.append('model', 'nano-banana-2-2k');
             form.append('prompt', prompt || "optimize image");
             form.append('n', 1);
-            form.append('size', "1024x1024");
+            form.append('size', "512x512");
             form.append('image', imageFile.buffer, {
                 filename: 'input.png',
                 contentType: imageFile.mimetype
