@@ -206,11 +206,20 @@ app.post('/api/generate-image', upload.single('image'), async (req, res) => {
                 filename: 'input.png',
                 contentType: imageFile.mimetype
             });
+            
+            // Add a transparent mask (1x1 PNG) to satisfy OpenAI /edits requirement
+            // Some providers require a mask for this endpoint.
+            // A fully transparent mask implies "edit the whole image" (or whatever the model default is).
+            const maskBuffer = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=', 'base64');
+            form.append('mask', maskBuffer, {
+                filename: 'mask.png',
+                contentType: 'image/png'
+            });
 
             // We need to get headers from the form-data instance
             const formHeaders = form.getHeaders();
             
-            console.log(`Sending Image-to-Image request. Image size: ${imageFile.size} bytes`);
+            console.log(`Sending Image-to-Image request. Image size: ${imageFile.size} bytes, MimeType: ${imageFile.mimetype}`);
 
             const imageResponse = await axios.post(`${PLATO_API_URL}/images/edits`, form, {
                 headers: {
