@@ -79,11 +79,11 @@ app.post('/api/generate-text', upload.none(), async (req, res) => {
         let content = prompt;
 
         try {
-            console.log("Trying /images/generations with nano-banana-2-4k...");
+            console.log("Trying /images/generations with nano-banana-2-2k...");
             
             // Explicitly set timeout for API request to avoid 502/504 from upstream
             const imageResponse = await axios.post(`${PLATO_API_URL}/images/generations`, {
-                model: 'nano-banana-2-4k', 
+                model: 'nano-banana-2-2k', 
                 prompt: prompt,
                 n: 1,
                 size: "1024x1024"
@@ -98,10 +98,10 @@ app.post('/api/generate-text', upload.none(), async (req, res) => {
             
             if (imageResponse.data && imageResponse.data.data && imageResponse.data.data.length > 0) {
                 imageUrl = imageResponse.data.data[0].url;
-                console.log("nano-banana-2-4k generation successful:", imageUrl);
+                console.log("nano-banana-2-2k generation successful:", imageUrl);
             }
         } catch (imgGenError) {
-            console.log("Text-to-Image nano-banana-2-4k failed:", JSON.stringify(imgGenError.response ? imgGenError.response.data : imgGenError.message, null, 2));
+            console.log("Text-to-Image nano-banana-2-2k failed:", JSON.stringify(imgGenError.response ? imgGenError.response.data : imgGenError.message, null, 2));
             
             // Fallback to DALL-E 3
             console.log("Falling back to DALL-E 3...");
@@ -194,11 +194,11 @@ app.post('/api/generate-image', upload.single('image'), async (req, res) => {
         let imageUrl = null;
 
         try {
-            console.log("Trying /images/edits with nano-banana-2-4k (Img2Img)...");
+            console.log("Trying /images/edits with nano-banana-2-2k (Img2Img)...");
             
             // Construct FormData payload for Img2Img (Standard OpenAI /images/edits format)
             const form = new FormData();
-            form.append('model', 'nano-banana-2-4k');
+            form.append('model', 'nano-banana-2-2k');
             form.append('prompt', prompt || "optimize image");
             form.append('n', 1);
             form.append('size', "1024x1024");
@@ -233,10 +233,10 @@ app.post('/api/generate-image', upload.single('image'), async (req, res) => {
             
             if (imageResponse.data && imageResponse.data.data && imageResponse.data.data.length > 0) {
                 imageUrl = imageResponse.data.data[0].url;
-                console.log("nano-banana-2-4k Img2Img successful:", imageUrl);
+                console.log("nano-banana-2-2k Img2Img successful:", imageUrl);
             }
         } catch (imgGenError) {
-            console.log("Image-to-Image nano-banana-2-4k failed:", imgGenError.response ? imgGenError.response.data : imgGenError.message);
+            console.log("Image-to-Image nano-banana-2-2k failed:", imgGenError.response ? imgGenError.response.data : imgGenError.message);
             
             // If first attempt fails, maybe try with 'images' array or just raw base64? 
             // Or maybe it is an OpenAI 'edits' endpoint wrapper?
