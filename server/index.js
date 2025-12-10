@@ -13,6 +13,10 @@ require('dotenv').config({ path: path.join(__dirname, '.env') });
 const app = express();
 const port = process.env.PORT || 3011;
 
+// Trust proxy is required when running behind Nginx/Reverse Proxy
+// This fixes the ERR_ERL_UNEXPECTED_X_FORWARDED_FOR error
+app.set('trust proxy', 1);
+
 // Define API Configuration with defaults for robustness
 const PLATO_API_URL = process.env.PLATO_API_URL || 'https://api.bltcy.ai/v1';
 const PLATO_API_KEY = process.env.PLATO_API_KEY || 'sk-VyK6G645s0AIgIsKp2cWkXVz3Z4Srlp3FW8k9YQ7zKQuIdjv';
