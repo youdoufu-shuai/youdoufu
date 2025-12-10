@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>代码心得 - 油豆腐🐷的小窝</title>
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-main: #1d1d1f;
+            --text-secondary: #86868b;
+            --font-stack: 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            --hover-bg: #f5f5f7;
+            --transition: all 0.3s ease;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: var(--bg-color); color: var(--text-main); font-family: var(--font-stack); line-height: 1.6; }
+
+        /* Navbar (Same as main) */
+        .navbar {
+            position: fixed; top: 0; left: 0; width: 100%; height: 60px;
+            background: rgba(255, 255, 255, 0.8); backdrop-filter: saturate(180%) blur(20px);
+            z-index: 1000; border-bottom: 1px solid rgba(0,0,0,0.05);
+            display: flex; justify-content: center;
+        }
+        .nav-container {
+            width: 100%; max-width: 1200px; padding: 0 40px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .brand { font-size: 1.1rem; font-weight: 600; color: var(--text-main); text-decoration: none; }
+        .nav-links { display: flex; gap: 30px; }
+        .nav-item { font-size: 0.85rem; color: var(--text-secondary); text-decoration: none; transition: var(--transition); }
+        .nav-item:hover, .nav-item.active { color: var(--text-main); }
+
+        /* Content */
+        main { padding: 120px 40px 60px; max-width: 900px; margin: 0 auto; }
+        
+        .page-header { margin-bottom: 60px; }
+        .page-title { font-size: 2.5rem; font-weight: 700; margin-bottom: 10px; }
+        .page-desc { color: var(--text-secondary); font-size: 1.1rem; }
+
+        /* Article List */
+        .article-list { display: flex; flex-direction: column; gap: 30px; }
+        
+        .article-item {
+            display: block;
+            text-decoration: none;
+            color: inherit;
+            padding: 30px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            transition: var(--transition);
+        }
+        
+        .article-item:hover {
+            transform: translateX(10px);
+        }
+        
+        .article-meta {
+            font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 8px;
+            text-transform: uppercase; letter-spacing: 0.05em;
+        }
+        
+        .article-title {
+            font-size: 1.5rem; font-weight: 600; margin-bottom: 12px;
+        }
+        
+        .article-excerpt {
+            font-size: 1rem; color: #555; line-height: 1.6;
+            max-width: 90%;
+        }
+
+        .back-link {
+            display: inline-block; margin-top: 60px; color: var(--text-secondary);
+            text-decoration: none; font-size: 0.9rem; transition: var(--transition);
+        }
+        .back-link:hover { color: var(--text-main); }
+
+        @media (max-width: 768px) {
+            .page-title { font-size: 2rem; }
+            main { padding: 100px 20px 40px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/blog-lkp.html" class="brand">油豆腐🐷的小窝</a>
+            <div class="nav-links">
+                <a href="/blog-lkp-code.html" class="nav-item active">代码心得</a>
+                <a href="/blog-lkp-photo.html" class="nav-item">摄影作品</a>
+                <a href="/blog-lkp-ai.html" class="nav-item">AI 作品</a>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <div class="page-header">
+            <h1 class="page-title">Code Insights</h1>
+            <p class="page-desc">思考，重构，再出发。</p>
+        </div>
+
+        <div class="article-list">
+            <a href="#" class="article-item">
+                <div class="article-meta">2025.12.10 · Backend</div>
+                <h2 class="article-title">解决 Node.js 高并发下的 502 错误</h2>
+                <p class="article-excerpt">在 AI 绘图任务中，由于生成时间较长，导致前端请求超时。通过引入内存任务队列和轮询机制，我们成功解决了这个问题...</p>
+            </a>
+            
+            <a href="#" class="article-item">
+                <div class="article-meta">2025.12.08 · Architecture</div>
+                <h2 class="article-title">关于双人博客系统的架构设计</h2>
+                <p class="article-excerpt">如何在一个 Express 项目中优雅地集成两个不同风格的个人空间？我们采用了模块化的路由设计和独立的静态资源管理...</p>
+            </a>
+
+            <a href="#" class="article-item">
+                <div class="article-meta">2025.12.01 · Frontend</div>
+                <h2 class="article-title">如何培养全面的逻辑思维</h2>
+                <p class="article-excerpt">写代码的时候，要将数据类型和实际相结合，这样才能更精确的实现业务和逻辑</p>
+            </a>
+        </div>
+
+        <a href="/blog-lkp.html" class="back-link">← 返回首页</a>
+    </main>
+</body>
+</html>

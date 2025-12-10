@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>油豆腐🐷的小窝</title>
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-main: #1d1d1f;
+            --text-secondary: #86868b;
+            --accent-color: #000000;
+            --hover-bg: #f5f5f7;
+            --font-stack: 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            --card-shadow: 0 4px 20px rgba(0,0,0,0.04);
+            --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: var(--font-stack);
+            -webkit-font-smoothing: antialiased;
+            line-height: 1.5;
+        }
+
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: saturate(180%) blur(20px);
+            z-index: 1000;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-container {
+            width: 100%;
+            max-width: 1200px;
+            padding: 0 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-main);
+            text-decoration: none;
+            letter-spacing: -0.02em;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-item {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .nav-item:hover {
+            color: var(--text-main);
+        }
+
+        .nav-item.active {
+            color: var(--text-main);
+        }
+        
+        .nav-item::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0%;
+            height: 1px;
+            background: var(--text-main);
+            transition: var(--transition);
+        }
+
+        .nav-item:hover::after {
+            width: 100%;
+        }
+
+        /* Main Content */
+        main {
+            padding-top: 120px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 100px;
+            opacity: 0;
+            animation: fadeIn 1s ease forwards;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #000 0%, #555 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            font-weight: 300;
+        }
+
+        /* Modules Grid */
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+            width: 100%;
+            max-width: 1200px;
+            padding: 0 40px;
+        }
+
+        .module-card {
+            background: #fff;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            position: relative;
+            border: 1px solid rgba(0,0,0,0.02);
+        }
+
+        .module-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+        }
+
+        .card-image {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            background-color: #f5f5f7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: #ddd;
+            transition: var(--transition);
+        }
+        
+        .module-card:hover .card-image {
+            transform: scale(1.03);
+        }
+
+        .card-content {
+            padding: 30px;
+            background: #fff;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            letter-spacing: -0.01em;
+        }
+
+        .card-desc {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .arrow-icon {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: var(--transition);
+        }
+
+        .module-card:hover .arrow-icon {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Footer */
+        footer {
+            margin-top: auto;
+            padding: 60px 0;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            width: 100%;
+            border-top: 1px solid rgba(0,0,0,0.05);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 900px) {
+            .modules-grid {
+                grid-template-columns: 1fr;
+            }
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="brand">油豆腐🐷的小窝</a>
+            <div class="nav-links">
+                <a href="/blog-lkp-code.html" class="nav-item">代码心得</a>
+                <a href="/blog-lkp-photo.html" class="nav-item">摄影作品</a>
+                <a href="/blog-lkp-ai.html" class="nav-item">AI 作品</a>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <div class="hero">
+            <h1>Less is More.</h1>
+            <p>探索代码、光影与人工智能的艺术边界。</p>
+        </div>
+
+        <div class="modules-grid">
+            <!-- Code Module -->
+            <a href="/blog-lkp-code.html" class="module-card">
+                <div class="card-image" style="background: linear-gradient(to bottom right, #f5f5f7, #e1e1e6);">
+                    💻
+                </div>
+                <div class="card-content">
+                    <h2 class="card-title">代码心得</h2>
+                    <p class="card-desc">技术探索、架构思考与开发日志。</p>
+                    <div class="arrow-icon">→</div>
+                </div>
+            </a>
+
+            <!-- Photo Module -->
+            <a href="/blog-lkp-photo.html" class="module-card">
+                <div class="card-image" style="background: linear-gradient(to bottom right, #f5f5f7, #e1e1e6);">
+                    📷
+                </div>
+                <div class="card-content">
+                    <h2 class="card-title">摄影作品</h2>
+                    <p class="card-desc">记录生活瞬间，定格光影之美。</p>
+                    <div class="arrow-icon">→</div>
+                </div>
+            </a>
+
+            <!-- AI Module -->
+            <a href="/blog-lkp-ai.html" class="module-card">
+                <div class="card-image" style="background: linear-gradient(to bottom right, #f5f5f7, #e1e1e6);">
+                    🤖
+                </div>
+                <div class="card-content">
+                    <h2 class="card-title">AI 作品展示</h2>
+                    <p class="card-desc">人机协作的无限可能，图像与音乐的生成艺术。</p>
+                    <div class="arrow-icon">→</div>
+                </div>
+            </a>
+        </div>
+
+        <footer>
+            <p>© 2025 油豆腐 | Designed by LKP</p>
+        </footer>
+    </main>
+
+</body>
+</html>
