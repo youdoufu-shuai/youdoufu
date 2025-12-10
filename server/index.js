@@ -60,7 +60,7 @@ app.use('/music', express.static(path.join(__dirname, '../music')));
 // Multer setup for file uploads
 const upload = multer({
     storage: multer.memoryStorage(),
-    limits: { fileSize: 10 * 1024 * 1024 } // 10MB limit
+    limits: { fileSize: 50 * 1024 * 1024 } // 50MB limit
 });
 
 // Ensure generated_images directory exists
