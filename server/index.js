@@ -102,8 +102,8 @@ app.get('/api/proxy-download', async (req, res) => {
     }
 });
 
-// Route: Text to Image (txt2img)
-app.post('/api/generate-text', upload.none(), async (req, res) => {
+// Route: Text to Image (txt2img) - Async Task Version
+app.post('/api/generate-text', upload.none(), (req, res) => {
     try {
         const { prompt, size } = req.body;
 
@@ -111,77 +111,133 @@ app.post('/api/generate-text', upload.none(), async (req, res) => {
             return res.status(400).json({ error: 'Prompt is required' });
         }
 
-        console.log("Starting Text-to-Image generation with prompt:", prompt);
-        console.log("Requested size:", size || "Default (512x512)");
+        const taskId = 'task_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
 
-        let imageUrl = null;
-        let content = prompt;
+        console.log(`[${taskId}] Starting Async Txt2Img Task`);
+        console.log(`[${taskId}] Prompt:`, prompt);
 
-        try {
-            console.log("Trying /images/generations with nano-banana-2-2k...");
-            
-            // Explicitly set timeout for API request to avoid 502/504 from upstream
-            const imageResponse = await axios.post(`${PLATO_API_URL}/images/generations`, {
-                model: 'nano-banana-2-2k', 
-                prompt: prompt,
-                n: 1,
-                size: size || "512x512"
-            }, {
-                headers: {
-                    'Authorization': `Bearer ${PLATO_API_KEY}`,
-                    'Content-Type': 'application/json'
-                },
-                timeout: 180000, // Reduced to 180s to fail faster if stuck
-                maxBodyLength: Infinity
-            });
-            
-            if (imageResponse.data && imageResponse.data.data && imageResponse.data.data.length > 0) {
-                imageUrl = imageResponse.data.data[0].url;
-                console.log("nano-banana-2-2k generation successful:", imageUrl);
-            }
-        } catch (imgGenError) {
-            console.log("Text-to-Image nano-banana-2-2k failed:", JSON.stringify(imgGenError.response ? imgGenError.response.data : imgGenError.message, null, 2));
-            
-            // Fallback to DALL-E 3
-            console.log("Falling back to DALL-E 3...");
+        // Initialize Task
+        tasks.set(taskId, { status: 'processing', timestamp: Date.now() });
+
+        // Respond immediately
+        res.json({ taskId, status: 'processing', message: 'Task started successfully' });
+
+        // Start background processing
+        (async () => {
             try {
-                const fallbackResponse = await axios.post(`${PLATO_API_URL}/images/generations`, {
-                    model: 'dall-e-3',
-                    prompt: prompt,
-                    n: 1,
-                    size: "1024x1024"
-                }, {
-                    headers: {
-                        'Authorization': `Bearer ${PLATO_API_KEY}`,
-                        'Content-Type': 'application/json'
-                    },
-                    timeout: 180000
-                });
-                imageUrl = fallbackResponse.data.data[0].url;
-            } catch (fallbackError) {
-                console.error("Fallback DALL-E 3 failed:", fallbackError.response ? fallbackError.response.data : fallbackError.message);
-                throw new Error("All image generation attempts failed.");
-            }
-        }
+                let imageUrl = null;
+                console.log(`[${taskId}] Trying /images/generations with nano-banana-2-2k...`);
 
-        if (imageUrl) {
-            // Respond immediately with remote URL
-            res.json({
-                imageUrl: imageUrl,
-                description: content
-            });
-        } else {
-            throw new Error("No image URL received from API");
-        }
+                try {
+                    const imageResponse = await axios.post(`${PLATO_API_URL}/images/generations`, {
+                        model: 'nano-banana-2-2k',
+                        prompt: prompt,
+                        n: 1,
+                        size: size || "512x512"
+                    }, {
+                        headers: {
+                            'Authorization': `Bearer ${PLATO_API_KEY}`,
+                            'Content-Type': 'application/json'
+                        },
+                        timeout: 180000,
+                        maxBodyLength: Infinity
+                    });
+
+                    if (imageResponse.data && imageResponse.data.data && imageResponse.data.data.length > 0) {
+                        imageUrl = imageResponse.data.data[0].url;
+                        console.log(`[${taskId}] Success (nano-banana-2-2k):`, imageUrl);
+                    }
+                } catch (primaryError) {
+                    console.log(`[${taskId}] Primary model failed:`, primaryError.message);
+                    throw primaryError; // Re-throw to trigger fallback
+                }
+
+                if (imageUrl) {
+                    tasks.set(taskId, {
+                        status: 'completed',
+                        imageUrl: imageUrl,
+                        description: prompt,
+                        timestamp: Date.now()
+                    });
+                } else {
+                    throw new Error("No image URL from primary model");
+                }
+
+            } catch (err) {
+                // Fallback to DALL-E 3
+                console.log(`[${taskId}] Falling back to DALL-E 3...`);
+                try {
+                    const fallbackResponse = await axios.post(`${PLATO_API_URL}/images/generations`, {
+                        model: 'dall-e-3',
+                        prompt: prompt,
+                        n: 1,
+                        size: "1024x1024"
+                    }, {
+                        headers: {
+                            'Authorization': `Bearer ${PLATO_API_KEY}`,
+                            'Content-Type': 'application/json'
+                        },
+                        timeout: 180000
+                    });
+                    
+                    if (fallbackResponse.data && fallbackResponse.data.data && fallbackResponse.data.data.length > 0) {
+                        const fallbackUrl = fallbackResponse.data.data[0].url;
+                        console.log(`[${taskId}] Success (DALL-E 3):`, fallbackUrl);
+                        
+                        tasks.set(taskId, {
+                            status: 'completed',
+                            imageUrl: fallbackUrl,
+                            description: prompt,
+                            timestamp: Date.now()
+                        });
+                    } else {
+                        throw new Error("No image URL from fallback model");
+                    }
+
+                } catch (fallbackError) {
+                    console.error(`[${taskId}] Fallback failed:`, fallbackError.message);
+                    tasks.set(taskId, {
+                        status: 'failed',
+                        error: "All image generation attempts failed.",
+                        timestamp: Date.now()
+                    });
+                }
+            }
+        })();
 
     } catch (error) {
-        console.error("Text-to-Image Error:", error.message);
-        res.status(500).json({ error: error.message });
+        console.error("Txt2Img Setup Error:", error.message);
+        if (!res.headersSent) {
+            res.status(500).json({ error: error.message });
+        }
     }
 });
 
-// Route: Image to Image (img2img)
-app.post('/api/generate-image', upload.single('image'), async (req, res) => {
+// Task Queue for Async Processing (Avoids Nginx 504/502 Timeouts)
+const tasks = new Map();
+
+// Cleanup old tasks every hour
+setInterval(() => {
+    const now = Date.now();
+    for (const [id, task] of tasks.entries()) {
+        if (now - (task.timestamp || 0) > 3600000) { // 1 hour
+            tasks.delete(id);
+        }
+    }
+}, 3600000);
+
+// Route: Check Task Status
+app.get('/api/task-status/:id', (req, res) => {
+    const taskId = req.params.id;
+    const task = tasks.get(taskId);
+    if (!task) {
+        return res.status(404).json({ error: 'Task not found or expired' });
+    }
+    res.json(task);
+});
+
+// Route: Image to Image (img2img) - Async Task Version
+app.post('/api/generate-image', upload.single('image'), (req, res) => {
     try {
         const { prompt, size } = req.body;
         const imageFile = req.file;
@@ -190,86 +246,90 @@ app.post('/api/generate-image', upload.single('image'), async (req, res) => {
             return res.status(400).json({ error: 'Image is required for Image-to-Image generation' });
         }
 
-        console.log("Starting Image-to-Image generation with prompt:", prompt || "(No prompt provided)");
-        console.log("Requested size:", size || "Default (512x512)");
+        // Generate Task ID
+        const taskId = 'task_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
         
-        // Convert image to base64
-        // Many OneAPI providers expect just the base64 string without the data URI prefix for 'image' field,
-        // OR a full data URI. We will try full data URI first as it's more standard for 'image_url' or some adapters.
-        // However, for 'image' field in some SD wrappers, it might want raw base64.
-        // Let's try standard Data URI first.
-        const base64Image = bufferToBase64(imageFile.buffer, imageFile.mimetype);
-        
-        // Also prepare raw base64 just in case
-        // const rawBase64 = imageFile.buffer.toString('base64');
+        console.log(`[${taskId}] Starting Async Img2Img Task`);
+        console.log(`[${taskId}] Prompt:`, prompt || "(No prompt)");
 
-        let imageUrl = null;
+        // Initialize Task
+        tasks.set(taskId, { status: 'processing', timestamp: Date.now() });
 
-        try {
-            console.log("Trying /images/edits with nano-banana-2-2k (Img2Img)...");
-            
-            // Construct FormData payload for Img2Img (Standard OpenAI /images/edits format)
-            const form = new FormData();
-            form.append('model', 'nano-banana-2-2k');
-            form.append('prompt', prompt || "optimize image");
-            form.append('n', 1);
-            form.append('size', size || "512x512");
-            form.append('image', imageFile.buffer, {
-                filename: 'input.png',
-                contentType: imageFile.mimetype
-            });
-            
-            // Add a transparent mask (1x1 PNG) to satisfy OpenAI /edits requirement
-            // Some providers require a mask for this endpoint.
-            // A fully transparent mask implies "edit the whole image" (or whatever the model default is).
-            const maskBuffer = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=', 'base64');
-            form.append('mask', maskBuffer, {
-                filename: 'mask.png',
-                contentType: 'image/png'
-            });
+        // Respond immediately to client with Task ID
+        res.json({ taskId, status: 'processing', message: 'Task started successfully' });
 
-            // We need to get headers from the form-data instance
-            const formHeaders = form.getHeaders();
-            
-            console.log(`Sending Image-to-Image request. Image size: ${imageFile.size} bytes, MimeType: ${imageFile.mimetype}`);
+        // Start background processing (Detached from HTTP response)
+        (async () => {
+            try {
+                // Convert image to base64 (Data URI)
+                const base64Image = bufferToBase64(imageFile.buffer, imageFile.mimetype);
+                
+                let imageUrl = null;
 
-            const imageResponse = await axios.post(`${PLATO_API_URL}/images/edits`, form, {
-                headers: {
-                    'Authorization': `Bearer ${PLATO_API_KEY}`,
-                    ...formHeaders
-                },
-                timeout: 300000, // 300s timeout for image generation
-                maxBodyLength: Infinity,
-                maxContentLength: Infinity
-            });
-            
-            if (imageResponse.data && imageResponse.data.data && imageResponse.data.data.length > 0) {
-                imageUrl = imageResponse.data.data[0].url;
-                console.log("nano-banana-2-2k Img2Img successful:", imageUrl);
+                console.log(`[${taskId}] Trying /images/edits with nano-banana-2-2k...`);
+                
+                // Construct FormData
+                const form = new FormData();
+                form.append('model', 'nano-banana-2-2k');
+                form.append('prompt', prompt || "optimize image");
+                form.append('n', 1);
+                form.append('size', size || "512x512");
+                form.append('image', imageFile.buffer, {
+                    filename: 'input.png',
+                    contentType: imageFile.mimetype
+                });
+                
+                // Add transparent mask
+                const maskBuffer = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=', 'base64');
+                form.append('mask', maskBuffer, {
+                    filename: 'mask.png',
+                    contentType: 'image/png'
+                });
+
+                const formHeaders = form.getHeaders();
+                
+                // Request to AI Provider
+                const imageResponse = await axios.post(`${PLATO_API_URL}/images/edits`, form, {
+                    headers: {
+                        'Authorization': `Bearer ${PLATO_API_KEY}`,
+                        ...formHeaders
+                    },
+                    timeout: 300000, // 300s timeout
+                    maxBodyLength: Infinity,
+                    maxContentLength: Infinity
+                });
+                
+                if (imageResponse.data && imageResponse.data.data && imageResponse.data.data.length > 0) {
+                    imageUrl = imageResponse.data.data[0].url;
+                    console.log(`[${taskId}] Success:`, imageUrl);
+                }
+
+                if (imageUrl) {
+                    tasks.set(taskId, { 
+                        status: 'completed', 
+                        imageUrl: imageUrl, 
+                        description: prompt,
+                        timestamp: Date.now()
+                    });
+                } else {
+                    throw new Error("No image URL received from API");
+                }
+
+            } catch (err) {
+                console.error(`[${taskId}] Failed:`, err.message);
+                tasks.set(taskId, { 
+                    status: 'failed', 
+                    error: err.response ? JSON.stringify(err.response.data) : err.message,
+                    timestamp: Date.now()
+                });
             }
-        } catch (imgGenError) {
-            console.log("Image-to-Image nano-banana-2-2k failed:", imgGenError.response ? imgGenError.response.data : imgGenError.message);
-            
-            // If first attempt fails, maybe try with 'images' array or just raw base64? 
-            // Or maybe it is an OpenAI 'edits' endpoint wrapper?
-            // For now, let's just error out or try DALL-E 2/3 variations if supported (DALL-E 3 doesn't support img2img/variations via API yet commonly)
-            // Let's throw error to let user know config might be wrong
-             throw new Error("Image-to-Image generation failed. The model might not support the provided format or image input.");
-        }
-
-        if (imageUrl) {
-             // Respond immediately with remote URL
-             res.json({
-                 imageUrl: imageUrl,
-                 description: prompt
-             });
-        } else {
-             throw new Error("No image URL received from API");
-        }
+        })();
 
     } catch (error) {
-        console.error("Image-to-Image Error:", error.message);
-        res.status(500).json({ error: error.message });
+        console.error("Img2Img Setup Error:", error.message);
+        if (!res.headersSent) {
+            res.status(500).json({ error: error.message });
+        }
     }
 });
 

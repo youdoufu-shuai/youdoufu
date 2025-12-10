@@ -322,6 +322,55 @@
 
                 const data = await res.json();
                 
+                if (data.taskId) {
+                    // Start polling
+                    const startTime = Date.now();
+                    const pollInterval = setInterval(async () => {
+                        try {
+                            // Timeout check (5 minutes)
+                            if (Date.now() - startTime > 300000) {
+                                clearInterval(pollInterval);
+                                throw new Error('Task timed out');
+                            }
+
+                            const statusRes = await fetch(`${API_BASE}/task-status/${data.taskId}`);
+                            if (!statusRes.ok) throw new Error('Failed to check status');
+                            
+                            const statusData = await statusRes.json();
+                            
+                            if (statusData.status === 'completed') {
+                                clearInterval(pollInterval);
+                                
+                                if (statusData.imageUrl) {
+                                    resultImage.src = statusData.imageUrl;
+                                    resultImage.style.display = 'block';
+                                    downloadLink.href = `/api/proxy-download?url=${encodeURIComponent(statusData.imageUrl)}`;
+                                    downloadLink.style.display = 'inline-block';
+                                }
+                                if (statusData.description) {
+                                    resultText.innerText = statusData.description;
+                                }
+                                
+                                loading.style.display = 'none';
+                                generateBtn.disabled = false;
+                            } else if (statusData.status === 'failed') {
+                                clearInterval(pollInterval);
+                                throw new Error(statusData.error || 'Generation failed');
+                            }
+                            // If 'processing' or 'pending', continue polling
+                        } catch (pollErr) {
+                            clearInterval(pollInterval);
+                            console.error(pollErr);
+                            resultText.innerText = '生成出错: ' + pollErr.message;
+                            loading.style.display = 'none';
+                            generateBtn.disabled = false;
+                        }
+                    }, 2000);
+                    
+                    return;
+                }
+
+                // Fallback for immediate response (if any)
                 if (data.imageUrl) {
                     resultImage.src = data.imageUrl;
                     resultImage.style.display = 'block';
@@ -337,11 +386,13 @@
                 if (!data.imageUrl && !data.description) {
                      resultText.innerText = "未收到结果，请重试。";
                 }
+                
+                loading.style.display = 'none';
+                generateBtn.disabled = false;
 
             } catch (err) {
                 console.error(err);
                 resultText.innerText = '生成出错: ' + err.message;
-            } finally {
                 loading.style.display = 'none';
                 generateBtn.disabled = false;
             }

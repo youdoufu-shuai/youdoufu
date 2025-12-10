@@ -366,7 +366,7 @@
             loading.style.display = 'block';
             resultImage.style.display = 'none';
             downloadLink.style.display = 'none';
-            resultText.innerText = '';
+            resultText.innerText = '任务提交中...';
             generateBtn.disabled = true;
 
             const formData = new FormData();
@@ -389,26 +389,54 @@
 
                 const data = await res.json();
                 
-                if (data.imageUrl) {
+                // Handle Async Task Response
+                if (data.taskId) {
+                    const startTime = Date.now();
+                    resultText.innerText = '正在生成中，请勿关闭页面... (0s)';
+                    
+                    const pollInterval = setInterval(async () => {
+                        try {
+                            const statusRes = await fetch(`${API_BASE}/task-status/${data.taskId}`);
+                            if (!statusRes.ok) throw new Error('Status Check Failed');
+                            
+                            const statusData = await statusRes.json();
+                            const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                            resultText.innerText = `正在生成中，请勿关闭页面... (${elapsed}s)`;
+
+                            if (statusData.status === 'completed') {
+                                clearInterval(pollInterval);
+                                resultImage.src = statusData.imageUrl;
+                                resultImage.style.display = 'block';
+                                downloadLink.href = `/api/proxy-download?url=${encodeURIComponent(statusData.imageUrl)}`;
+                                downloadLink.style.display = 'inline-block';
+                                resultText.innerText = statusData.description || '生成成功！';
+                                loading.style.display = 'none';
+                                generateBtn.disabled = false;
+                            } else if (statusData.status === 'failed') {
+                                clearInterval(pollInterval);
+                                throw new Error(statusData.error || '生成失败');
+                            }
+                            // Else: continue polling
+                        } catch (pollErr) {
+                            console.error(pollErr);
+                            // Continue polling even if one request fails (network glitch)
+                        }
+                    }, 2000); // Poll every 2s
+
+                } else if (data.imageUrl) {
+                    // Fallback for direct response
                     resultImage.src = data.imageUrl;
                     resultImage.style.display = 'block';
-                    // Use proxy download to avoid CORS issues and enable direct download
                     downloadLink.href = `/api/proxy-download?url=${encodeURIComponent(data.imageUrl)}`;
                     downloadLink.style.display = 'inline-block';
-                }
-                
-                if (data.description) {
-                    resultText.innerText = data.description;
-                }
-
-                if (!data.imageUrl && !data.description) {
-                     resultText.innerText = "未收到结果，请重试。";
+                    if (data.description) resultText.innerText = data.description;
+                    loading.style.display = 'none';
+                    generateBtn.disabled = false;
                 }
 
             } catch (err) {
                 console.error(err);
                 resultText.innerText = '生成出错: ' + err.message;
-            } finally {
                 loading.style.display = 'none';
                 generateBtn.disabled = false;
             }
