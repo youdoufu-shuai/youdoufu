@@ -27,11 +27,19 @@ console.log('----------------------------------------');
 // Middleware
 app.use(morgan('dev')); // Logging
 app.use(helmet({
-  contentSecurityPolicy: false // Disable CSP for now to avoid issues with inline scripts/styles in simple HTML
+  contentSecurityPolicy: false // Disable CSP for now
 }));
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+
+// Disable caching for all requests during development
+app.use((req, res, next) => {
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+    next();
+});
 
 // Rate Limiting
 const limiter = rateLimit({
@@ -65,6 +73,31 @@ const bufferToBase64 = (buffer, mimetype) => {
 // Serve generated images
 app.use('/generated_images', express.static(path.join(__dirname, 'generated_images')));
 
+// Route: Proxy Download
+app.get('/api/proxy-download', async (req, res) => {
+    try {
+        const { url } = req.query;
+        if (!url) {
+            return res.status(400).send('Missing url parameter');
+        }
+
+        const response = await axios({
+            url: url,
+            method: 'GET',
+            responseType: 'stream',
+            timeout: 60000
+        });
+
+        res.setHeader('Content-Disposition', `attachment; filename="generated-image-${Date.now()}.png"`);
+        res.setHeader('Content-Type', response.headers['content-type']);
+        
+        response.data.pipe(res);
+    } catch (error) {
+        console.error('Proxy download error:', error.message);
+        res.status(500).send('Failed to download image');
+    }
+});
+
 // Route: Text to Image (txt2img)
 app.post('/api/generate-text', upload.none(), async (req, res) => {
     try {
@@ -94,7 +127,7 @@ app.post('/api/generate-text', upload.none(), async (req, res) => {
                     'Authorization': `Bearer ${PLATO_API_KEY}`,
                     'Content-Type': 'application/json'
                 },
-                timeout: 300000, // 300s timeout for image generation
+                timeout: 180000, // Reduced to 180s to fail faster if stuck
                 maxBodyLength: Infinity
             });
             
@@ -118,7 +151,7 @@ app.post('/api/generate-text', upload.none(), async (req, res) => {
                         'Authorization': `Bearer ${PLATO_API_KEY}`,
                         'Content-Type': 'application/json'
                     },
-                    timeout: 300000 // 300s timeout for fallback
+                    timeout: 180000
                 });
                 imageUrl = fallbackResponse.data.data[0].url;
             } catch (fallbackError) {
@@ -128,39 +161,11 @@ app.post('/api/generate-text', upload.none(), async (req, res) => {
         }
 
         if (imageUrl) {
-            // Respond immediately with remote URL to avoid timeout issues
-            // This ensures the client gets a result even if the subsequent download takes time
+            // Respond immediately with remote URL
             res.json({
                 imageUrl: imageUrl,
                 description: content
             });
-
-            // Try to DOWNLOAD and SAVE the image in the background
-            (async () => {
-                try {
-                    const imageFileName = `gen-txt-${Date.now()}.png`;
-                    const localImagePath = path.join(generatedImagesDir, imageFileName);
-                    
-                    const writer = fs.createWriteStream(localImagePath);
-                    const imgStreamResponse = await axios({
-                        url: imageUrl,
-                        method: 'GET',
-                        responseType: 'stream',
-                        timeout: 300000 // 300s timeout for download
-                    });
-
-                    imgStreamResponse.data.pipe(writer);
-
-                    await new Promise((resolve, reject) => {
-                        writer.on('finish', resolve);
-                        writer.on('error', reject);
-                    });
-
-                    console.log(`[Background] Text-to-Image saved locally: ${localImagePath}`);
-                } catch (downloadError) {
-                    console.error("[Background] Failed to download image:", downloadError.message);
-                }
-            })();
         } else {
             throw new Error("No image URL received from API");
         }
@@ -249,38 +254,11 @@ app.post('/api/generate-image', upload.single('image'), async (req, res) => {
         }
 
         if (imageUrl) {
-             // Respond immediately with remote URL to avoid timeout issues
+             // Respond immediately with remote URL
              res.json({
                  imageUrl: imageUrl,
                  description: prompt
              });
-
-             // Try to DOWNLOAD and SAVE the image in the background
-             (async () => {
-                 try {
-                    const imageFileName = `gen-img-${Date.now()}.png`;
-                    const localImagePath = path.join(generatedImagesDir, imageFileName);
-                    
-                    const writer = fs.createWriteStream(localImagePath);
-                    const imgStreamResponse = await axios({
-                        url: imageUrl,
-                        method: 'GET',
-                        responseType: 'stream',
-                        timeout: 300000 // 300s timeout for download
-                    });
-
-                    imgStreamResponse.data.pipe(writer);
-
-                    await new Promise((resolve, reject) => {
-                        writer.on('finish', resolve);
-                        writer.on('error', reject);
-                    });
-
-                    console.log(`[Background] Image-to-Image saved locally: ${localImagePath}`);
-                } catch (downloadError) {
-                    console.error("[Background] Failed to download image:", downloadError.message);
-                }
-             })();
         } else {
              throw new Error("No image URL received from API");
         }

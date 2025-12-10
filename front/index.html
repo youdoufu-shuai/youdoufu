@@ -550,6 +550,16 @@
         <i>🎵</i>
     </div>
     
+    <script>
+        // Force music play on first interaction
+        document.body.addEventListener('click', function() {
+            const audio = document.getElementById('bg-music');
+            if (audio && audio.paused) {
+                audio.play().catch(e => console.log("Audio play failed:", e));
+            }
+        }, { once: true });
+    </script>
+    
     <!-- Settings Control -->
     <div class="settings-control" id="settings-toggle" title="设置">
         <i>⚙️</i>

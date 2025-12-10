@@ -325,7 +325,8 @@
                 if (data.imageUrl) {
                     resultImage.src = data.imageUrl;
                     resultImage.style.display = 'block';
-                    downloadLink.href = data.imageUrl;
+                    // Use proxy download to avoid CORS issues and enable direct download
+                    downloadLink.href = `/api/proxy-download?url=${encodeURIComponent(data.imageUrl)}`;
                     downloadLink.style.display = 'inline-block';
                 }
                 
