@@ -1,0 +1,93 @@
+{
+	"backtrace" : 5,
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"add_custom_target",
+			"include"
+		],
+		"files" : 
+		[
+			"/Users/slpekamer/Library/Android/sdk/cmake/3.22.1/share/cmake-3.22/Modules/CTestTargets.cmake",
+			"/Users/slpekamer/Library/Android/sdk/cmake/3.22.1/share/cmake-3.22/Modules/CTest.cmake",
+			"thirdparty/yaml-cpp-0.8.0/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 2
+			},
+			{
+				"command" : 1,
+				"file" : 2,
+				"line" : 21,
+				"parent" : 0
+			},
+			{
+				"file" : 1,
+				"parent" : 1
+			},
+			{
+				"command" : 1,
+				"file" : 1,
+				"line" : 264,
+				"parent" : 2
+			},
+			{
+				"file" : 0,
+				"parent" : 3
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 75,
+				"parent" : 4
+			}
+		]
+	},
+	"folder" : 
+	{
+		"name" : "CTestDashboardTargets"
+	},
+	"id" : "ExperimentalUpdate::@d02b42168f47ac4c5a31",
+	"name" : "ExperimentalUpdate",
+	"paths" : 
+	{
+		"build" : "thirdparty/yaml-cpp-0.8.0",
+		"source" : "thirdparty/yaml-cpp-0.8.0"
+	},
+	"sourceGroups" : 
+	[
+		{
+			"name" : "",
+			"sourceIndexes" : 
+			[
+				0
+			]
+		},
+		{
+			"name" : "CMake Rules",
+			"sourceIndexes" : 
+			[
+				1
+			]
+		}
+	],
+	"sources" : 
+	[
+		{
+			"backtrace" : 5,
+			"isGenerated" : true,
+			"path" : "/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/.cxx/Debug/70423w2z/arm64-v8a/thirdparty/yaml-cpp-0.8.0/CMakeFiles/ExperimentalUpdate",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 0,
+			"isGenerated" : true,
+			"path" : "/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/.cxx/Debug/70423w2z/arm64-v8a/thirdparty/yaml-cpp-0.8.0/CMakeFiles/ExperimentalUpdate.rule",
+			"sourceGroupIndex" : 1
+		}
+	],
+	"type" : "UTILITY"
+}

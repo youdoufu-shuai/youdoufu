@@ -1,0 +1,27 @@
+{
+  "buildFiles": [
+    "/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108/3dlib-android/app/src/main/cpp/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/Users/slpekamer/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108/3dlib-android/app/.cxx/Debug/6c5qjb3d/arm64-v8a",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/Users/slpekamer/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108/3dlib-android/app/.cxx/Debug/6c5qjb3d/arm64-v8a",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {
+    "lib3d::@6890427a1f51a3e7e1df": {
+      "artifactName": "lib3d",
+      "abi": "arm64-v8a",
+      "output": "/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108/3dlib-android/app/build/intermediates/cxx/Debug/6c5qjb3d/obj/arm64-v8a/liblib3d.so",
+      "runtimeFiles": []
+    }
+  }
+}

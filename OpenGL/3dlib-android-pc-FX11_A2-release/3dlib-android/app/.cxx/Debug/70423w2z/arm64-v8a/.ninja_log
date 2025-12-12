@@ -1,0 +1,150 @@
+# ninja log v5
+5791	6781	1745542369882652611	thirdparty/yaml-cpp-0.8.0/CMakeFiles/yaml-cpp.dir/src/emit.cpp.o	e64a6f792d04cd1c
+3962	6722	1745542369829894309	CMakeFiles/lib3d.dir/model/Model.cpp.o	423bc7d7e0543746
+8183	9132	1745542372247149799	thirdparty/yaml-cpp-0.8.0/CMakeFiles/yaml-cpp.dir/src/singledocparser.cpp.o	c0897b71518ae983
+7923	9004	1745542372117632176	thirdparty/yaml-cpp-0.8.0/CMakeFiles/yaml-cpp.dir/src/scantoken.cpp.o	f433a628001d4739
+6564	7442	1745542370550196290	thirdparty/yaml-cpp-0.8.0/CMakeFiles/yaml-cpp.dir/src/memory.cpp.o	babd8cfae31407c1
+7408	8915	1745542372026180827	thirdparty/yaml-cpp-0.8.0/CMakeFiles/yaml-cpp.dir/src/scanner.cpp.o	2853d3d567536787
+3291	5592	1745542368701151227	CMakeFiles/lib3d.dir/demo/VehicleMoveDirectionArrow.cpp.o	62f300a55501952b
+7034	7923	1745542371033186911	thirdparty/yaml-cpp-0.8.0/CMakeFiles/yaml-cpp.dir/src/nodeevents.cpp.o	e020669bd6231234
+6781	8183	1745542371289921440	thirdparty/yaml-cpp-0.8.0/CMakeFiles/yaml-cpp.dir/src/node_data.cpp.o	4b5ae3aa95abe027
+7225	8604	1745542371712964866	thirdparty/yaml-cpp-0.8.0/CMakeFiles/yaml-cpp.dir/src/parse.cpp.o	d1b04568f7c9b85f
+7376	8705	1745542371815398486	thirdparty/yaml-cpp-0.8.0/CMakeFiles/yaml-cpp.dir/src/parser.cpp.o	2408775b517bcba9
+9132	12870	1745542375991756000	thirdparty/yaml-cpp-0.8.0/libyaml-cppd.a	438716ff5e8c53bb
+7442	8563	1745542371674937965	thirdparty/yaml-cpp-0.8.0/CMakeFiles/yaml-cpp.dir/src/scanscalar.cpp.o	70181a51fc3294d4
+7196	7971	1745542371080918167	thirdparty/yaml-cpp-0.8.0/CMakeFiles/yaml-cpp.dir/src/ostream_wrapper.cpp.o	9c9290d5b7eca7c4
+6723	7225	1745542370337549885	thirdparty/yaml-cpp-0.8.0/CMakeFiles/yaml-cpp.dir/src/node.cpp.o	d0c4a7442498429f
+6238	7196	1745542370307797259	thirdparty/yaml-cpp-0.8.0/CMakeFiles/yaml-cpp.dir/src/emitterstate.cpp.o	8ce352285040256a
+5674	6564	1745542369674460229	thirdparty/yaml-cpp-0.8.0/CMakeFiles/yaml-cpp.dir/src/depthguard.cpp.o	a9e3fad496b7f81a
+6216	7376	1745542370481834199	thirdparty/yaml-cpp-0.8.0/CMakeFiles/yaml-cpp.dir/src/emitter.cpp.o	18c49102a3a00ea7
+2	9302	1745805042452533841	CMakeFiles/lib3d.dir/demo/UIDisplay.cpp.o	fffa6a98d8bb8144
+6383	7023	1745542370133280793	thirdparty/yaml-cpp-0.8.0/CMakeFiles/yaml-cpp.dir/src/exceptions.cpp.o	2a8c92e1c3b6ae4
+4152	6423	1745542369531264880	CMakeFiles/lib3d.dir/model/Shader.cpp.o	48cbdf0f493d9674
+5891	7034	1745542370144362061	thirdparty/yaml-cpp-0.8.0/CMakeFiles/yaml-cpp.dir/src/emitfromevents.cpp.o	fe04ff2c92e9a44f
+7378	8309	1745542371421783113	thirdparty/yaml-cpp-0.8.0/CMakeFiles/yaml-cpp.dir/src/regex_yaml.cpp.o	8f7602cc3ea2607b
+7972	8894	1745542372006581583	thirdparty/yaml-cpp-0.8.0/CMakeFiles/yaml-cpp.dir/src/simplekey.cpp.o	20073101b4fbd9f0
+10214	10882	1745895964028877597	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/build/intermediates/cxx/Debug/70423w2z/obj/arm64-v8a/liblib3d.so	eaa1bcae2f8cece6
+3352	5791	1745542368896588811	CMakeFiles/lib3d.dir/demo/VirtualView.cpp.o	d5e78df1586e190d
+7129	7504	1745542370616311996	thirdparty/yaml-cpp-0.8.0/CMakeFiles/yaml-cpp.dir/src/null.cpp.o	cf9de4b99d216736
+5592	6383	1745542369494671641	thirdparty/yaml-cpp-0.8.0/CMakeFiles/yaml-cpp.dir/src/contrib/graphbuilder.cpp.o	69253d00ba4e6972
+5779	6238	1745542369353042242	thirdparty/yaml-cpp-0.8.0/CMakeFiles/yaml-cpp.dir/src/directives.cpp.o	e85b83ab71075361
+5609	6216	1745542369327530980	thirdparty/yaml-cpp-0.8.0/CMakeFiles/yaml-cpp.dir/src/binary.cpp.o	82908f05270bf284
+3	3282	1745542366389804770	CMakeFiles/lib3d.dir/demo/ParkingProgressBar.cpp.o	6ff75d515b363c77
+4193	5674	1745542368782971552	CMakeFiles/lib3d.dir/model/YamlLoader.cpp.o	15552126c5d4379b
+3	3290	1745542366397452149	CMakeFiles/lib3d.dir/demo/ParkingProgress.cpp.o	5561b790095f5f3
+3282	5609	1745542368716436235	CMakeFiles/lib3d.dir/demo/RadarWaterRipple.cpp.o	39d82a2c22aa8650
+3114	5599	1745542368708699443	CMakeFiles/lib3d.dir/demo/RadarAlarmDistance.cpp.o	dc754aaf00674e40
+8264	8939	1745542372054914361	thirdparty/yaml-cpp-0.8.0/CMakeFiles/yaml-cpp.dir/src/stream.cpp.o	b76e5cf72bb294af
+3	4152	1745542367258052521	CMakeFiles/lib3d.dir/demo/ParkingDisplay.cpp.o	ddcbb309c3745bba
+5599	6337	1745542369443927192	thirdparty/yaml-cpp-0.8.0/CMakeFiles/yaml-cpp.dir/src/contrib/graphbuilderadapter.cpp.o	27d5e711170cd91d
+2	4075	1745895867339585573	CMakeFiles/lib3d.dir/native-lib.cpp.o	8358a061545ec8cb
+3	10213	1745895963346118250	CMakeFiles/lib3d.dir/demo/RenderContext3D.cpp.o	9608ee30b7df6b9e
+3580	5491	1745542368600687294	CMakeFiles/lib3d.dir/demo/VisualAngleControl.cpp.o	ea69bac2b0d7a253
+3796	5891	1745542368977080470	CMakeFiles/lib3d.dir/model/Mesh.cpp.o	61a3a6ea8023e195
+7023	8264	1745542371373805657	thirdparty/yaml-cpp-0.8.0/CMakeFiles/yaml-cpp.dir/src/nodebuilder.cpp.o	3b975a28d6ebe91c
+6337	7408	1745542370514680975	thirdparty/yaml-cpp-0.8.0/CMakeFiles/yaml-cpp.dir/src/emitterutils.cpp.o	cc097572c35a339f
+7504	8516	1745542371623899733	thirdparty/yaml-cpp-0.8.0/CMakeFiles/yaml-cpp.dir/src/scantag.cpp.o	cd130887ad91fcb0
+2	3350	1745542366442811147	CMakeFiles/lib3d.dir/demo/CarExitDirection.cpp.o	4a212e1badfc0245
+5636	7129	1745542370239064847	thirdparty/yaml-cpp-0.8.0/CMakeFiles/yaml-cpp.dir/src/convert.cpp.o	2d980be5fba973bf
+6423	7378	1745542370484349326	thirdparty/yaml-cpp-0.8.0/CMakeFiles/yaml-cpp.dir/src/exp.cpp.o	8513606c904a8020
+5491	5636	1745542368752658528	CMakeFiles/lib3d.dir/tool/GlprocLoader.cpp.o	a2bab79e40b744f1
+1	3796	1745542366903699723	CMakeFiles/lib3d.dir/demo/Car3DModelDisplay.cpp.o	5aeddf541c407e3e
+8309	8915	1745542372030801470	thirdparty/yaml-cpp-0.8.0/CMakeFiles/yaml-cpp.dir/src/tag.cpp.o	b369e13d6fddcf96
+0	74	0	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/.cxx/Debug/70423w2z/arm64-v8a/CMakeFiles/cmake.verify_globs	a78be31258d234a
+4	3762	1745542366842341657	CMakeFiles/lib3d.dir/demo/RadarAlarmDisplay.cpp.o	64577c028d50a050
+2	3962	1745542367069177353	CMakeFiles/lib3d.dir/demo/ObstacleDisplay.cpp.o	23c4a09b8cee2b35
+2	3111	1745542366213877685	CMakeFiles/lib3d.dir/demo/GearDisplay.cpp.o	453097008692678a
+0	652	0	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/.cxx/Debug/70423w2z/arm64-v8a/CMakeFiles/cmake.verify_globs	a78be31258d234a
+7	5103	1745896005360202468	CMakeFiles/lib3d.dir/demo/RenderContext3D.cpp.o	9608ee30b7df6b9e
+5103	5873	1745896006134101435	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/build/intermediates/cxx/Debug/70423w2z/obj/arm64-v8a/liblib3d.so	eaa1bcae2f8cece6
+0	31	0	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/.cxx/Debug/70423w2z/arm64-v8a/CMakeFiles/cmake.verify_globs	a78be31258d234a
+2	5274	1745896515335720006	CMakeFiles/lib3d.dir/native-lib.cpp.o	8358a061545ec8cb
+2	5479	1745896515546336220	CMakeFiles/lib3d.dir/demo/RenderContext3D.cpp.o	9608ee30b7df6b9e
+5479	6160	1745896516238714494	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/build/intermediates/cxx/Debug/70423w2z/obj/arm64-v8a/liblib3d.so	eaa1bcae2f8cece6
+1	128	0	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/.cxx/Debug/70423w2z/arm64-v8a/CMakeFiles/cmake.verify_globs	a78be31258d234a
+0	100	0	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/.cxx/Debug/70423w2z/arm64-v8a/CMakeFiles/cmake.verify_globs	a78be31258d234a
+3	6488	1745896715166602469	CMakeFiles/lib3d.dir/demo/RenderContext3D.cpp.o	9608ee30b7df6b9e
+6489	7265	1745896715952281598	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/build/intermediates/cxx/Debug/70423w2z/obj/arm64-v8a/liblib3d.so	eaa1bcae2f8cece6
+0	89	0	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/.cxx/Debug/70423w2z/arm64-v8a/CMakeFiles/cmake.verify_globs	a78be31258d234a
+2	6468	1745896767700541575	CMakeFiles/lib3d.dir/demo/RenderContext3D.cpp.o	9608ee30b7df6b9e
+6468	7404	1745896768653031689	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/build/intermediates/cxx/Debug/70423w2z/obj/arm64-v8a/liblib3d.so	eaa1bcae2f8cece6
+34	154	0	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/.cxx/Debug/70423w2z/arm64-v8a/CMakeFiles/cmake.verify_globs	a78be31258d234a
+5	4256	1745896827890194395	CMakeFiles/lib3d.dir/demo/RenderContext3D.cpp.o	9608ee30b7df6b9e
+4257	5029	1745896828670421626	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/build/intermediates/cxx/Debug/70423w2z/obj/arm64-v8a/liblib3d.so	eaa1bcae2f8cece6
+1	35	0	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/.cxx/Debug/70423w2z/arm64-v8a/CMakeFiles/cmake.verify_globs	a78be31258d234a
+1	8738	1745897823826786049	CMakeFiles/lib3d.dir/demo/RenderContext3D.cpp.o	9608ee30b7df6b9e
+8738	9601	1745897824700185574	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/build/intermediates/cxx/Debug/70423w2z/obj/arm64-v8a/liblib3d.so	eaa1bcae2f8cece6
+0	40	0	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/.cxx/Debug/70423w2z/arm64-v8a/CMakeFiles/cmake.verify_globs	a78be31258d234a
+2	7678	1745905646077654868	CMakeFiles/lib3d.dir/native-lib.cpp.o	8358a061545ec8cb
+3	7963	1745905646358737153	CMakeFiles/lib3d.dir/demo/RenderContext3D.cpp.o	9608ee30b7df6b9e
+7963	8737	1745905647140238176	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/build/intermediates/cxx/Debug/70423w2z/obj/arm64-v8a/liblib3d.so	eaa1bcae2f8cece6
+0	34	0	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/.cxx/Debug/70423w2z/arm64-v8a/CMakeFiles/cmake.verify_globs	a78be31258d234a
+0	30	0	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/.cxx/Debug/70423w2z/arm64-v8a/CMakeFiles/cmake.verify_globs	a78be31258d234a
+0	78	0	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/.cxx/Debug/70423w2z/arm64-v8a/CMakeFiles/cmake.verify_globs	a78be31258d234a
+2	2920	1745907432637550539	CMakeFiles/lib3d.dir/native-lib.cpp.o	8358a061545ec8cb
+2	3165	1745907432886306346	CMakeFiles/lib3d.dir/demo/RenderContext3D.cpp.o	9608ee30b7df6b9e
+3165	4074	1745907433800359577	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/build/intermediates/cxx/Debug/70423w2z/obj/arm64-v8a/liblib3d.so	eaa1bcae2f8cece6
+17	41	0	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/.cxx/Debug/70423w2z/arm64-v8a/CMakeFiles/cmake.verify_globs	a78be31258d234a
+2	8407	1745907829625634059	CMakeFiles/lib3d.dir/demo/RenderContext3D.cpp.o	9608ee30b7df6b9e
+8407	9230	1745907830461952322	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/build/intermediates/cxx/Debug/70423w2z/obj/arm64-v8a/liblib3d.so	eaa1bcae2f8cece6
+0	35	0	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/.cxx/Debug/70423w2z/arm64-v8a/CMakeFiles/cmake.verify_globs	a78be31258d234a
+2	8665	1745908363934999729	CMakeFiles/lib3d.dir/native-lib.cpp.o	8358a061545ec8cb
+2	8926	1745908364196719105	CMakeFiles/lib3d.dir/demo/RenderContext3D.cpp.o	9608ee30b7df6b9e
+8926	9720	1745908364997983137	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/build/intermediates/cxx/Debug/70423w2z/obj/arm64-v8a/liblib3d.so	eaa1bcae2f8cece6
+0	99	0	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/.cxx/Debug/70423w2z/arm64-v8a/CMakeFiles/cmake.verify_globs	a78be31258d234a
+3	4953	1745908497875594131	CMakeFiles/lib3d.dir/demo/RenderContext3D.cpp.o	9608ee30b7df6b9e
+4954	5693	1745908498633338911	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/build/intermediates/cxx/Debug/70423w2z/obj/arm64-v8a/liblib3d.so	eaa1bcae2f8cece6
+0	75	0	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/.cxx/Debug/70423w2z/arm64-v8a/CMakeFiles/cmake.verify_globs	a78be31258d234a
+4	2278	1745908545960662719	CMakeFiles/lib3d.dir/demo/RenderContext3D.cpp.o	9608ee30b7df6b9e
+2278	2873	1745908546564720120	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/build/intermediates/cxx/Debug/70423w2z/obj/arm64-v8a/liblib3d.so	eaa1bcae2f8cece6
+1	218	0	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/.cxx/Debug/70423w2z/arm64-v8a/CMakeFiles/cmake.verify_globs	a78be31258d234a
+6	4407	1745908591593583370	CMakeFiles/lib3d.dir/demo/RenderContext3D.cpp.o	9608ee30b7df6b9e
+4407	5077	1745908592273557622	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/build/intermediates/cxx/Debug/70423w2z/obj/arm64-v8a/liblib3d.so	eaa1bcae2f8cece6
+0	222	0	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/.cxx/Debug/70423w2z/arm64-v8a/CMakeFiles/cmake.verify_globs	a78be31258d234a
+1	14234	1745908658712340804	CMakeFiles/lib3d.dir/demo/RenderContext3D.cpp.o	9608ee30b7df6b9e
+14234	15123	1745908659614827152	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/build/intermediates/cxx/Debug/70423w2z/obj/arm64-v8a/liblib3d.so	eaa1bcae2f8cece6
+0	66	0	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/.cxx/Debug/70423w2z/arm64-v8a/CMakeFiles/cmake.verify_globs	a78be31258d234a
+2	11892	1745908722861837364	CMakeFiles/lib3d.dir/demo/RenderContext3D.cpp.o	9608ee30b7df6b9e
+11892	12529	1745908723506157903	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/build/intermediates/cxx/Debug/70423w2z/obj/arm64-v8a/liblib3d.so	eaa1bcae2f8cece6
+0	40	0	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/.cxx/Debug/70423w2z/arm64-v8a/CMakeFiles/cmake.verify_globs	a78be31258d234a
+2	9069	1745909309863718520	CMakeFiles/lib3d.dir/native-lib.cpp.o	8358a061545ec8cb
+2	9331	1745909310122484153	CMakeFiles/lib3d.dir/demo/RenderContext3D.cpp.o	9608ee30b7df6b9e
+9331	9916	1745909310715643730	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/build/intermediates/cxx/Debug/70423w2z/obj/arm64-v8a/liblib3d.so	eaa1bcae2f8cece6
+0	48	0	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/.cxx/Debug/70423w2z/arm64-v8a/CMakeFiles/cmake.verify_globs	a78be31258d234a
+2	4073	1745909385105290616	CMakeFiles/lib3d.dir/demo/RenderContext3D.cpp.o	9608ee30b7df6b9e
+4079	4742	1745909385847415858	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/build/intermediates/cxx/Debug/70423w2z/obj/arm64-v8a/liblib3d.so	eaa1bcae2f8cece6
+1	84	0	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/.cxx/Debug/70423w2z/arm64-v8a/CMakeFiles/cmake.verify_globs	a78be31258d234a
+3	5370	1745909598764630959	CMakeFiles/lib3d.dir/demo/RenderContext3D.cpp.o	9608ee30b7df6b9e
+5370	6372	1745909599780014265	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/build/intermediates/cxx/Debug/70423w2z/obj/arm64-v8a/liblib3d.so	eaa1bcae2f8cece6
+0	33	0	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/.cxx/Debug/70423w2z/arm64-v8a/CMakeFiles/cmake.verify_globs	a78be31258d234a
+2	3428	1745910048393622915	CMakeFiles/lib3d.dir/demo/RenderContext3D.cpp.o	9608ee30b7df6b9e
+3428	4101	1745910049072163526	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/build/intermediates/cxx/Debug/70423w2z/obj/arm64-v8a/liblib3d.so	eaa1bcae2f8cece6
+0	34	0	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/.cxx/Debug/70423w2z/arm64-v8a/CMakeFiles/cmake.verify_globs	a78be31258d234a
+0	52	0	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/.cxx/Debug/70423w2z/arm64-v8a/CMakeFiles/cmake.verify_globs	a78be31258d234a
+2	4323	1745910300387078755	CMakeFiles/lib3d.dir/native-lib.cpp.o	8358a061545ec8cb
+2	4533	1745910300613063043	CMakeFiles/lib3d.dir/demo/RenderContext3D.cpp.o	9608ee30b7df6b9e
+4533	5138	1745910301224738747	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/build/intermediates/cxx/Debug/70423w2z/obj/arm64-v8a/liblib3d.so	eaa1bcae2f8cece6
+0	93	0	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/.cxx/Debug/70423w2z/arm64-v8a/CMakeFiles/cmake.verify_globs	a78be31258d234a
+5	4511	1745910388420871918	CMakeFiles/lib3d.dir/demo/RenderContext3D.cpp.o	9608ee30b7df6b9e
+4512	5434	1745910389369369270	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/build/intermediates/cxx/Debug/70423w2z/obj/arm64-v8a/liblib3d.so	eaa1bcae2f8cece6
+0	66	0	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/.cxx/Debug/70423w2z/arm64-v8a/CMakeFiles/cmake.verify_globs	a78be31258d234a
+5	3973	1745910853043646072	CMakeFiles/lib3d.dir/demo/RenderContext3D.cpp.o	9608ee30b7df6b9e
+3973	4601	1745910853688200868	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/build/intermediates/cxx/Debug/70423w2z/obj/arm64-v8a/liblib3d.so	eaa1bcae2f8cece6
+0	90	0	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/.cxx/Debug/70423w2z/arm64-v8a/CMakeFiles/cmake.verify_globs	a78be31258d234a
+3	4440	1745910938861743365	CMakeFiles/lib3d.dir/demo/RenderContext3D.cpp.o	9608ee30b7df6b9e
+4440	5046	1745910939523045292	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/build/intermediates/cxx/Debug/70423w2z/obj/arm64-v8a/liblib3d.so	eaa1bcae2f8cece6
+0	42	0	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/.cxx/Debug/70423w2z/arm64-v8a/CMakeFiles/cmake.verify_globs	a78be31258d234a
+2	3600	1745911027780091050	CMakeFiles/lib3d.dir/demo/RenderContext3D.cpp.o	9608ee30b7df6b9e
+3601	4207	1745911028390564922	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/build/intermediates/cxx/Debug/70423w2z/obj/arm64-v8a/liblib3d.so	eaa1bcae2f8cece6
+0	35	0	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/.cxx/Debug/70423w2z/arm64-v8a/CMakeFiles/cmake.verify_globs	a78be31258d234a
+2	3126	1745911457547332950	CMakeFiles/lib3d.dir/demo/RenderContext3D.cpp.o	9608ee30b7df6b9e
+3126	3936	1745911458373752027	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/build/intermediates/cxx/Debug/70423w2z/obj/arm64-v8a/liblib3d.so	eaa1bcae2f8cece6
+0	72	0	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/.cxx/Debug/70423w2z/arm64-v8a/CMakeFiles/cmake.verify_globs	a78be31258d234a
+2	5552	1745911619043372729	CMakeFiles/lib3d.dir/demo/RenderContext3D.cpp.o	9608ee30b7df6b9e
+5552	6407	1745911619932841435	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/build/intermediates/cxx/Debug/70423w2z/obj/arm64-v8a/liblib3d.so	eaa1bcae2f8cece6
+1	47	0	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/.cxx/Debug/70423w2z/arm64-v8a/CMakeFiles/cmake.verify_globs	a78be31258d234a
+4	4157	1745911700280025203	CMakeFiles/lib3d.dir/demo/RenderContext3D.cpp.o	9608ee30b7df6b9e
+4157	5378	1745911701531446511	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/build/intermediates/cxx/Debug/70423w2z/obj/arm64-v8a/liblib3d.so	eaa1bcae2f8cece6
+1	70	0	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/.cxx/Debug/70423w2z/arm64-v8a/CMakeFiles/cmake.verify_globs	a78be31258d234a
+3	5398	1745911830899135699	CMakeFiles/lib3d.dir/demo/RenderContext3D.cpp.o	9608ee30b7df6b9e
+5399	6241	1745911831766949291	/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/build/intermediates/cxx/Debug/70423w2z/obj/arm64-v8a/liblib3d.so	eaa1bcae2f8cece6

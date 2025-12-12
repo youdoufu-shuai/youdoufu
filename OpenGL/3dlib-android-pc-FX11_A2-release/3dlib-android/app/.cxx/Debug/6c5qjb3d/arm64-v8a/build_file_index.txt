@@ -1,0 +1,1 @@
+/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108/3dlib-android/app/src/main/cpp/CMakeLists.txt

@@ -1,0 +1,4 @@
+/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/src/main/cpp/CMakeLists.txt
+/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/src/main/cpp/thirdparty/yaml-cpp-0.8.0/CMakeLists.txt
+/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/src/main/cpp/thirdparty/yaml-cpp-0.8.0/cmake_uninstall.cmake.in
+/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/src/main/cpp/thirdparty/yaml-cpp-0.8.0/yaml-cpp-config.cmake.in

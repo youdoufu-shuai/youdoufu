@@ -1,0 +1,197 @@
+{
+  "buildFiles": [
+    "/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/src/main/cpp/CMakeLists.txt",
+    "/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/src/main/cpp/thirdparty/yaml-cpp-0.8.0/CMakeLists.txt",
+    "/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/src/main/cpp/thirdparty/yaml-cpp-0.8.0/cmake_uninstall.cmake.in",
+    "/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/src/main/cpp/thirdparty/yaml-cpp-0.8.0/yaml-cpp-config.cmake.in"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/Users/slpekamer/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/.cxx/Debug/70423w2z/arm64-v8a",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/Users/slpekamer/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/.cxx/Debug/70423w2z/arm64-v8a",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {
+    "Continuous::@d02b42168f47ac4c5a31": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "Continuous"
+    },
+    "ContinuousBuild::@d02b42168f47ac4c5a31": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "ContinuousBuild"
+    },
+    "ContinuousConfigure::@d02b42168f47ac4c5a31": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "ContinuousConfigure"
+    },
+    "ContinuousCoverage::@d02b42168f47ac4c5a31": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "ContinuousCoverage"
+    },
+    "ContinuousMemCheck::@d02b42168f47ac4c5a31": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "ContinuousMemCheck"
+    },
+    "ContinuousStart::@d02b42168f47ac4c5a31": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "ContinuousStart"
+    },
+    "ContinuousSubmit::@d02b42168f47ac4c5a31": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "ContinuousSubmit"
+    },
+    "ContinuousTest::@d02b42168f47ac4c5a31": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "ContinuousTest"
+    },
+    "ContinuousUpdate::@d02b42168f47ac4c5a31": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "ContinuousUpdate"
+    },
+    "Experimental::@d02b42168f47ac4c5a31": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "Experimental"
+    },
+    "ExperimentalBuild::@d02b42168f47ac4c5a31": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "ExperimentalBuild"
+    },
+    "ExperimentalConfigure::@d02b42168f47ac4c5a31": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "ExperimentalConfigure"
+    },
+    "ExperimentalCoverage::@d02b42168f47ac4c5a31": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "ExperimentalCoverage"
+    },
+    "ExperimentalMemCheck::@d02b42168f47ac4c5a31": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "ExperimentalMemCheck"
+    },
+    "ExperimentalStart::@d02b42168f47ac4c5a31": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "ExperimentalStart"
+    },
+    "ExperimentalSubmit::@d02b42168f47ac4c5a31": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "ExperimentalSubmit"
+    },
+    "ExperimentalTest::@d02b42168f47ac4c5a31": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "ExperimentalTest"
+    },
+    "ExperimentalUpdate::@d02b42168f47ac4c5a31": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "ExperimentalUpdate"
+    },
+    "Nightly::@d02b42168f47ac4c5a31": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "Nightly"
+    },
+    "NightlyBuild::@d02b42168f47ac4c5a31": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "NightlyBuild"
+    },
+    "NightlyConfigure::@d02b42168f47ac4c5a31": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "NightlyConfigure"
+    },
+    "NightlyCoverage::@d02b42168f47ac4c5a31": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "NightlyCoverage"
+    },
+    "NightlyMemCheck::@d02b42168f47ac4c5a31": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "NightlyMemCheck"
+    },
+    "NightlyMemoryCheck::@d02b42168f47ac4c5a31": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "NightlyMemoryCheck"
+    },
+    "NightlyStart::@d02b42168f47ac4c5a31": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "NightlyStart"
+    },
+    "NightlySubmit::@d02b42168f47ac4c5a31": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "NightlySubmit"
+    },
+    "NightlyTest::@d02b42168f47ac4c5a31": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "NightlyTest"
+    },
+    "NightlyUpdate::@d02b42168f47ac4c5a31": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "NightlyUpdate"
+    },
+    "format::@d02b42168f47ac4c5a31": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "format"
+    },
+    "lib3d::@6890427a1f51a3e7e1df": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "lib3d",
+      "output": "/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/build/intermediates/cxx/Debug/70423w2z/obj/arm64-v8a/liblib3d.so",
+      "runtimeFiles": []
+    },
+    "uninstall::@d02b42168f47ac4c5a31": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "uninstall"
+    },
+    "yaml-cpp::@d02b42168f47ac4c5a31": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "yaml-cpp",
+      "output": "/Users/slpekamer/Desktop/WorkSpace/Android/3dlib-android-pc-FX11_A2-release-20250108 2/3dlib-android/app/.cxx/Debug/70423w2z/arm64-v8a/thirdparty/yaml-cpp-0.8.0/libyaml-cppd.a"
+    }
+  },
+  "toolchains": {
+    "toolchain": {
+      "cCompilerExecutable": "/Users/slpekamer/Library/Android/sdk/ndk/21.3.6528147/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang.lld",
+      "cppCompilerExecutable": "/Users/slpekamer/Library/Android/sdk/ndk/21.3.6528147/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang++.lld"
+    }
+  },
+  "cFileExtensions": [],
+  "cppFileExtensions": [
+    "cpp"
+  ]
+}

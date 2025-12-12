@@ -1,0 +1,28 @@
+---
+# virtual view car model object file
+virtual_view_model_file: /storage/emulated/0/Android/data/com.demo.lib3d/files/Download/avm_resource/image/carmodel3d/junlian/FX11_A2/animation3d/models/Geely/Geely1.obj
+# animation_delta: increment value, influence the animation rate.
+# max_value: max physical value the component can animate.
+component:
+  door:
+    animation_delta: 5.0
+    max_value: 90.0
+  hood:
+    animation_delta: 3.0
+    max_value: 45.0
+  trunk:
+    animation_delta: 4.0
+    max_value: 60.0
+  wheel:
+    animation_delta: 2.0
+parking_slot:
+# angle means the angle between AB and AC.
+# the unit of the following three fields are degree, metres, metres
+# shape_angle_tolerance is degree
+  shape_angle_tolerance: 1.5
+  length_tolerance: 0.35
+  width_tolerance: 0.35
+  slot_size_scale: 1.06
+  slot_num_max: 30
+  shape:
+  - {angle: 90.0, length: 5.3, width: 2.5}
