@@ -1,11 +1,37 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
+// Game Configuration
+const CONFIG = {
+    LEVEL_1_GOAL: 100,
+    LEVEL_2_GOAL: 200, // Total score needed
+    BOSS_COINS_NEEDED: 10,
+    BOSS_HITS_NEEDED: 10,
+    BOSS_HP: 10
+};
+
 // Game State
-let gameState = 'START'; // START, PLAYING, GAME_OVER
+let currentState = 'LOADING'; // LOADING, TUTORIAL, PLAYING, LEVEL_TRANSITION, BOSS_FIGHT, GAME_OVER, VICTORY
+let currentLevel = 1;
 let score = 0;
 let frameCount = 0;
 let startTime = 0;
+
+// Boss State
+let bossState = {
+    active: false,
+    hp: 10,
+    coinsCollected: 0,
+    hitsTaken: 0,
+    x: 0, 
+    y: 0,
+    vx: 0, 
+    vy: 0,
+    width: 120,
+    height: 120,
+    moveTimer: 0,
+    action: 'IDLE' // IDLE, CHASE_BONE, RANDOM_MOVE
+};
 
 // Resize handling
 function resize() {
@@ -24,10 +50,12 @@ function updateInput(x, y, isDown) {
     if (isDown !== null) mouse.down = isDown;
 }
 
+// Mouse Events
 window.addEventListener('mousedown', (e) => updateInput(e.clientX, e.clientY, true));
 window.addEventListener('mousemove', (e) => updateInput(e.clientX, e.clientY, null));
 window.addEventListener('mouseup', () => updateInput(mouse.x, mouse.y, false));
 
+// Touch Events
 window.addEventListener('touchstart', (e) => {
     e.preventDefault();
     updateInput(e.touches[0].clientX, e.touches[0].clientY, true);
@@ -36,47 +64,101 @@ window.addEventListener('touchmove', (e) => {
     e.preventDefault();
     updateInput(e.touches[0].clientX, e.touches[0].clientY, null);
 }, { passive: false });
-window.addEventListener('touchend', () => updateInput(mouse.x, mouse.y, false));
+window.addEventListener('touchend', (e) => {
+    e.preventDefault(); // Prevent click emulation
+    updateInput(mouse.x, mouse.y, false);
+});
 
-// Assets Loader
+// Assets Definition
 const assets = {
     dog: { src: 'assets/dog-removebg-preview.png' },
     bone: { src: 'assets/bone-removebg-preview.png' },
-    gold: { src: 'assets/glod-removebg-preview.png' }, // Note: glod typo in filename
+    gold: { src: 'assets/glod-removebg-preview.png' }, 
     shou: { src: 'assets/shou-removebg-preview.png' },
     shouCatch: { src: 'assets/shouCatch-removebg-preview.png' },
     sword: { src: 'assets/sword-removebg-preview.png' },
     xianjing1: { src: 'assets/xianjing1-removebg-preview.png' },
     xianjing2: { src: 'assets/xianjing2-removebg-preview.png' },
     zidan: { src: 'assets/zidan-removebg-preview.png' },
-    zidan1: { src: 'assets/zidan1-removebg-preview.png' }
+    zidan1: { src: 'assets/zidan1-removebg-preview.png' },
+    // New Assets
+    caodi: { src: 'assets/caodi.png' },
+    shatan: { src: 'assets/shatan.png' },
+    nitan: { src: 'assets/nitan.png' },
+    shuitan: { src: 'assets/shuitan.png' },
+    boss: { src: 'assets/boss1.png' }
 };
 
 const images = {};
 let assetsLoaded = 0;
 const totalAssets = Object.keys(assets).length;
 
-Object.keys(assets).forEach(key => {
-    const img = new Image();
-    img.src = assets[key].src;
-    img.onload = () => assetsLoaded++;
-    img.onerror = () => {
-        console.warn(`Failed to load ${assets[key].src}`);
-        img.isMissing = true;
-        assetsLoaded++;
-    };
-    images[key] = img;
-});
-
-// Helper: Get difficulty multiplier based on time
-function getDifficulty() {
-    if (gameState !== 'PLAYING') return 1;
-    const elapsed = (Date.now() - startTime) / 1000; // seconds
-    // Difficulty increases every 10 seconds, up to a max
-    return 1 + Math.min(elapsed / 20, 5); // 1.0 -> 6.0
+// Preload Assets
+function loadAssets() {
+    const loadingBar = document.getElementById('loading-bar');
+    
+    Object.keys(assets).forEach(key => {
+        const img = new Image();
+        img.src = assets[key].src;
+        img.onload = () => {
+            assetsLoaded++;
+            const percent = (assetsLoaded / totalAssets) * 100;
+            if (loadingBar) loadingBar.style.width = `${percent}%`;
+            
+            if (assetsLoaded === totalAssets) {
+                setTimeout(() => {
+                    document.getElementById('loading-screen').classList.add('hidden');
+                    showTutorial();
+                }, 500);
+            }
+        };
+        img.onerror = () => {
+            console.warn(`Failed to load ${assets[key].src}`);
+            img.isMissing = true;
+            assetsLoaded++; // Still proceed
+        };
+        images[key] = img;
+    });
 }
 
-// Helper: Collision Detection (Circle based for smoother gameplay)
+// --- UI Management ---
+function showTutorial() {
+    currentState = 'TUTORIAL';
+    document.getElementById('tutorial-screen').classList.remove('hidden');
+}
+
+function startGame() {
+    document.getElementById('tutorial-screen').classList.add('hidden');
+    document.getElementById('score-board').classList.remove('hidden');
+    initLevel(1);
+}
+
+function showLevelComplete(msg) {
+    currentState = 'LEVEL_TRANSITION';
+    document.getElementById('level-msg').innerText = msg;
+    document.getElementById('level-complete-screen').classList.remove('hidden');
+}
+
+function nextLevel() {
+    document.getElementById('level-complete-screen').classList.add('hidden');
+    if (currentLevel === 1) initLevel(2);
+    else if (currentLevel === 2) initBossLevel();
+}
+
+function gameOver() {
+    currentState = 'GAME_OVER';
+    document.getElementById('final-score').innerText = score;
+    document.getElementById('game-over-screen').classList.remove('hidden');
+}
+
+function showVictory() {
+    currentState = 'VICTORY';
+    document.getElementById('victory-screen').classList.remove('hidden');
+}
+
+// --- Game Logic ---
+
+// Helper: Collision
 function checkCollision(circle1, circle2) {
     const dx = circle1.x - circle2.x;
     const dy = circle1.y - circle2.y;
@@ -84,26 +166,29 @@ function checkCollision(circle1, circle2) {
     return distance < (circle1.radius + circle2.radius);
 }
 
-// Game Objects
+function checkRectCollision(rect1, rect2) {
+    return (rect1.x - rect1.width/2 < rect2.x + rect2.width/2 &&
+            rect1.x + rect1.width/2 > rect2.x - rect2.width/2 &&
+            rect1.y - rect1.height/2 < rect2.y + rect2.height/2 &&
+            rect1.y + rect1.height/2 > rect2.y - rect2.height/2);
+}
 
+
+// Entities
 class Hand {
     constructor() {
-        this.width = 100;
-        this.height = 100;
+        this.width = 80;
+        this.height = 80;
     }
-
     draw() {
         const x = mouse.x;
         const y = mouse.y;
         const img = mouse.down ? images.shouCatch : images.shou;
-        
-        if (img && !img.isMissing && img.complete) {
+        if (img && !img.isMissing) {
             ctx.drawImage(img, x - this.width/2, y - this.height/2, this.width, this.height);
         } else {
-            ctx.fillStyle = mouse.down ? 'red' : 'blue';
-            ctx.beginPath();
-            ctx.arc(x, y, 20, 0, Math.PI * 2);
-            ctx.fill();
+            ctx.fillStyle = 'rgba(0, 0, 255, 0.5)';
+            ctx.beginPath(); ctx.arc(x, y, 30, 0, Math.PI*2); ctx.fill();
         }
     }
 }
@@ -115,9 +200,8 @@ class Bone {
         this.width = 50;
         this.height = 30;
         this.isHeld = false;
-        this.radius = 15; // Collision radius
+        this.radius = 15;
     }
-
     update() {
         if (mouse.down) {
             this.isHeld = true;
@@ -127,13 +211,15 @@ class Bone {
             this.isHeld = false;
         }
     }
-
     draw() {
-        if (images.bone && !images.bone.isMissing && images.bone.complete) {
+        if (images.bone && !images.bone.isMissing) {
             ctx.drawImage(images.bone, this.x - this.width/2, this.y - this.height/2, this.width, this.height);
         } else {
-            ctx.fillStyle = 'white';
-            ctx.fillRect(this.x - 25, this.y - 15, 50, 30);
+            ctx.fillStyle = '#eee';
+            ctx.beginPath(); 
+            ctx.ellipse(this.x, this.y, 20, 10, 0, 0, Math.PI*2); 
+            ctx.fill();
+            ctx.strokeStyle = '#ccc'; ctx.stroke();
         }
     }
 }
@@ -145,193 +231,206 @@ class Dog {
         this.width = 80;
         this.height = 60;
         this.baseSpeed = 3;
-        this.radius = 25; // Hitbox radius
+        this.radius = 25;
         this.facingRight = true;
+        this.speedModifier = 1.0;
+        this.isSlowed = false;
     }
-
     update(bone) {
+        let speed = this.baseSpeed * this.speedModifier;
+        if (this.isSlowed) speed *= 0.5;
+
         if (bone.isHeld) {
-            // Just look at bone
             this.facingRight = bone.x > this.x;
         } else {
-            // Walk towards bone
             const dx = bone.x - this.x;
             const dy = bone.y - this.y;
             const dist = Math.sqrt(dx*dx + dy*dy);
             
-            if (dist > 10) { // Deadzone
-                const moveX = (dx / dist) * this.baseSpeed;
-                const moveY = (dy / dist) * this.baseSpeed;
-                
+            if (dist > 10) {
+                const moveX = (dx / dist) * speed;
+                const moveY = (dy / dist) * speed;
                 this.x += moveX;
                 this.y += moveY;
                 this.facingRight = dx > 0;
             }
         }
-
         // Boundary
         this.x = Math.max(this.radius, Math.min(canvas.width - this.radius, this.x));
         this.y = Math.max(this.radius, Math.min(canvas.height - this.radius, this.y));
     }
-
     draw() {
-        if (images.dog && !images.dog.isMissing && images.dog.complete) {
+        if (images.dog && !images.dog.isMissing) {
             ctx.save();
             ctx.translate(this.x, this.y);
             if (!this.facingRight) ctx.scale(-1, 1);
             ctx.drawImage(images.dog, -this.width/2, -this.height/2, this.width, this.height);
+            // Draw slow effect
+            if (this.isSlowed) {
+                ctx.fillStyle = 'rgba(139, 69, 19, 0.5)'; // Brown tint
+                ctx.beginPath(); ctx.arc(0, 20, 10, 0, Math.PI*2); ctx.fill();
+            }
             ctx.restore();
         } else {
-            ctx.fillStyle = 'brown';
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-            ctx.fill();
+            ctx.fillStyle = '#8B4513';
+            ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2); ctx.fill();
+            // Eyes to show direction
+            ctx.fillStyle = 'white';
+            const eyeOffset = this.facingRight ? 10 : -10;
+            ctx.beginPath(); ctx.arc(this.x + eyeOffset, this.y - 10, 5, 0, Math.PI*2); ctx.fill();
+        }
+    }
+}
+
+class Terrain {
+    constructor(type) {
+        this.type = type; // 'nitan', 'shuitan'
+        this.x = Math.random() * (canvas.width - 100) + 50;
+        this.y = Math.random() * (canvas.height - 100) + 50;
+        this.width = 80;
+        this.height = 80;
+        this.radius = 35;
+    }
+    draw() {
+        const img = images[this.type];
+        if (img && !img.isMissing) {
+            ctx.drawImage(img, this.x - this.width/2, this.y - this.height/2, this.width, this.height);
         }
     }
 }
 
 class Trap {
     constructor(type) {
-        this.type = type; // 'sword', 'xianjing1', 'xianjing2'
+        this.type = type; 
         this.x = Math.random() * (canvas.width - 100) + 50;
         this.y = Math.random() * (canvas.height - 100) + 50;
         this.width = 60;
         this.height = 60;
         this.radius = 25;
-        
-        // State Machine
-        this.state = 'WARNING'; // WARNING -> ACTIVE
-        this.warningTimer = 120; // 2 seconds at 60fps (decreases with diff)
-        this.activeTimer = 300; // 5 seconds
-        this.angle = 0; // For sword
-        
-        // Difficulty adjustments
-        const diff = getDifficulty();
-        this.warningTimer = Math.max(30, 120 - diff * 10); // Faster warning at high diff
+        this.state = 'WARNING'; 
+        this.warningTimer = (currentLevel === 'BOSS' || currentLevel === 2) ? 90 : 120; // Faster in later levels
+        this.activeTimer = 300; 
+        this.angle = 0;
     }
-
     update() {
         if (this.state === 'WARNING') {
             this.warningTimer--;
-            if (this.warningTimer <= 0) {
-                this.state = 'ACTIVE';
-            }
+            if (this.warningTimer <= 0) this.state = 'ACTIVE';
         } else if (this.state === 'ACTIVE') {
             this.activeTimer--;
-            if (this.type === 'sword') {
-                this.angle += 0.2;
-            }
+            if (this.type === 'sword') this.angle += 0.2;
         }
     }
-
     draw() {
         if (this.state === 'WARNING') {
-            // Draw warning circle
             ctx.save();
             ctx.translate(this.x, this.y);
-            ctx.beginPath();
-            ctx.arc(0, 0, this.radius + 10, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(255, 0, 0, ${0.3 + Math.sin(frameCount * 0.2) * 0.2})`; // Pulse
+            ctx.beginPath(); ctx.arc(0, 0, this.radius + 10, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(255, 0, 0, ${0.3 + Math.sin(frameCount * 0.2) * 0.2})`; 
             ctx.fill();
-            ctx.strokeStyle = 'red';
-            ctx.lineWidth = 2;
-            ctx.stroke();
-            
-            // Show faded preview
+            ctx.strokeStyle = 'red'; ctx.lineWidth = 2; ctx.stroke();
             const img = images[this.type];
-            if (img && !img.isMissing && img.complete) {
+            if (img && !img.isMissing) {
                 ctx.globalAlpha = 0.5;
                 ctx.drawImage(img, -this.width/2, -this.height/2, this.width, this.height);
                 ctx.globalAlpha = 1.0;
             }
             ctx.restore();
-            
         } else if (this.state === 'ACTIVE') {
             const img = images[this.type];
-            if (img && !img.isMissing && img.complete) {
+            if (img && !img.isMissing) {
                 ctx.save();
                 ctx.translate(this.x, this.y);
                 if (this.type === 'sword') ctx.rotate(this.angle);
                 ctx.drawImage(img, -this.width/2, -this.height/2, this.width, this.height);
                 ctx.restore();
-            } else {
-                ctx.fillStyle = 'purple';
-                ctx.fillRect(this.x - 20, this.y - 20, 40, 40);
             }
         }
     }
-    
-    isDangerous() {
-        return this.state === 'ACTIVE';
-    }
+    isDangerous() { return this.state === 'ACTIVE'; }
 }
 
 class Bullet {
     constructor(type) {
-        this.type = type; // 'zidan', 'zidan1'
+        this.type = type;
         this.radius = 15;
         this.width = 40;
         this.height = 20;
         
-        // Spawn from random edge
-        const side = Math.floor(Math.random() * 4); // 0:Top, 1:Right, 2:Bottom, 3:Left
-        const diff = getDifficulty();
-        const speed = (type === 'zidan1' ? 8 : 4) * (1 + diff * 0.2); // Speed increases with difficulty
+        // Warning System
+        this.state = 'WARNING';
+        this.warningTimer = 120; // 2 seconds
+
+        // Determine Spawn & Target
+        const side = Math.floor(Math.random() * 4); 
+        // 0:Top, 1:Right, 2:Bottom, 3:Left
         
+        // Set start position OUTSIDE screen
         switch(side) {
-            case 0: // Top
-                this.x = Math.random() * canvas.width;
-                this.y = -50;
-                break;
-            case 1: // Right
-                this.x = canvas.width + 50;
-                this.y = Math.random() * canvas.height;
-                break;
-            case 2: // Bottom
-                this.x = Math.random() * canvas.width;
-                this.y = canvas.height + 50;
-                break;
-            case 3: // Left
-                this.x = -50;
-                this.y = Math.random() * canvas.height;
-                break;
+            case 0: this.x = Math.random() * canvas.width; this.y = -50; break;
+            case 1: this.x = canvas.width + 50; this.y = Math.random() * canvas.height; break;
+            case 2: this.x = Math.random() * canvas.width; this.y = canvas.height + 50; break;
+            case 3: this.x = -50; this.y = Math.random() * canvas.height; break;
         }
 
-        // Target a random point within the screen to ensure it crosses
         const targetX = Math.random() * canvas.width;
         const targetY = Math.random() * canvas.height;
         const angle = Math.atan2(targetY - this.y, targetX - this.x);
         
+        const diffMultiplier = 1 + (score / 500); // Simple difficulty scaling
+        const speed = (type === 'zidan1' ? 8 : 4) * diffMultiplier;
+        
         this.vx = Math.cos(angle) * speed;
         this.vy = Math.sin(angle) * speed;
         this.rotation = angle;
+        
+        // Warning Indicator Position (Clamped to screen edge)
+        this.indicatorX = Math.max(20, Math.min(canvas.width - 20, this.x));
+        this.indicatorY = Math.max(20, Math.min(canvas.height - 20, this.y));
+        if (side === 0) this.indicatorY = 30;
+        if (side === 1) this.indicatorX = canvas.width - 30;
+        if (side === 2) this.indicatorY = canvas.height - 30;
+        if (side === 3) this.indicatorX = 30;
     }
 
     update() {
-        this.x += this.vx;
-        this.y += this.vy;
+        if (this.state === 'WARNING') {
+            this.warningTimer--;
+            if (this.warningTimer <= 0) this.state = 'ACTIVE';
+        } else {
+            this.x += this.vx;
+            this.y += this.vy;
+        }
     }
 
     draw() {
-        const img = images[this.type];
-        if (img && !img.isMissing && img.complete) {
-            ctx.save();
-            ctx.translate(this.x, this.y);
-            ctx.rotate(this.rotation);
-            // If flying left (angle > 90 or < -90), maybe flip? 
-            // Usually bullets are drawn pointing right. Rotation handles direction.
-            ctx.drawImage(img, -this.width/2, -this.height/2, this.width, this.height);
-            ctx.restore();
-        } else {
-            ctx.fillStyle = 'orange';
+        if (this.state === 'WARNING') {
+            // Draw Exclamation Mark
+            ctx.fillStyle = `rgba(255, 0, 0, ${0.5 + Math.sin(frameCount * 0.3) * 0.5})`;
             ctx.beginPath();
-            ctx.arc(this.x, this.y, 10, 0, Math.PI * 2);
+            ctx.arc(this.indicatorX, this.indicatorY, 20, 0, Math.PI*2);
             ctx.fill();
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 20px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('!', this.indicatorX, this.indicatorY);
+        } else {
+            const img = images[this.type];
+            if (img && !img.isMissing) {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation);
+                ctx.drawImage(img, -this.width/2, -this.height/2, this.width, this.height);
+                ctx.restore();
+            }
         }
     }
     
+    isDangerous() { return this.state === 'ACTIVE'; }
     isOffScreen() {
-        return (this.x < -100 || this.x > canvas.width + 100 || 
+        return (this.state === 'ACTIVE') && 
+               (this.x < -100 || this.x > canvas.width + 100 || 
                 this.y < -100 || this.y > canvas.height + 100);
     }
 }
@@ -344,153 +443,322 @@ class Gold {
         this.height = 40;
         this.radius = 20;
     }
-
     draw() {
-        if (images.gold && !images.gold.isMissing && images.gold.complete) {
+        if (images.gold && !images.gold.isMissing) {
             ctx.drawImage(images.gold, this.x - this.width/2, this.y - this.height/2, this.width, this.height);
         } else {
             ctx.fillStyle = 'gold';
             ctx.beginPath();
-            ctx.arc(this.x, this.y, 15, 0, Math.PI * 2);
+            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
             ctx.fill();
+            ctx.strokeStyle = 'orange';
+            ctx.lineWidth = 2;
+            ctx.stroke();
         }
     }
 }
 
+class Boss {
+    constructor() {
+        this.x = canvas.width / 2;
+        this.y = 100;
+        this.width = 150;
+        this.height = 150;
+        this.radius = 60;
+        this.speed = 2.5;
+        this.moveTimer = 0;
+        this.targetX = this.x;
+        this.targetY = this.y;
+    }
+
+    update(bone, golds) {
+        // State Logic
+        if (this.moveTimer > 0) {
+            this.moveTimer--;
+            // Random Move
+        } else {
+            // Check for bone (priority)
+            if (!bone.isHeld) {
+                this.targetX = bone.x;
+                this.targetY = bone.y;
+                
+                // Eat Bone Check
+                if (checkCollision(this, bone)) {
+                    // Boss eats bone logic? "Eats bone then random move 2s"
+                    // We can't actually destroy the bone, maybe just push it or trigger effect
+                    // Requirement: "Eat bone -> random move 2s"
+                    this.moveTimer = 120; // 2s
+                    this.targetX = Math.random() * (canvas.width - 100) + 50;
+                    this.targetY = Math.random() * (canvas.height - 100) + 50;
+                }
+            } else {
+                // Bone held, maybe chase random gold or player?
+                // Default: Chase nearest gold to heal
+                if (golds.length > 0) {
+                    // Find nearest
+                    let nearest = golds[0];
+                    let minD = 9999;
+                    golds.forEach(g => {
+                        const d = Math.hypot(g.x - this.x, g.y - this.y);
+                        if (d < minD) { minD = d; nearest = g; }
+                    });
+                    this.targetX = nearest.x;
+                    this.targetY = nearest.y;
+                } else {
+                    // Idle move
+                    if (Math.random() < 0.02) {
+                         this.targetX = Math.random() * (canvas.width - 100) + 50;
+                         this.targetY = Math.random() * (canvas.height - 100) + 50;
+                    }
+                }
+            }
+        }
+
+        // Move
+        const dx = this.targetX - this.x;
+        const dy = this.targetY - this.y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist > 5) {
+            this.x += (dx/dist) * this.speed;
+            this.y += (dy/dist) * this.speed;
+        }
+
+        // Heal Check (Collision with gold)
+        // Handled in main loop for array splicing
+    }
+
+    draw() {
+        if (images.boss && !images.boss.isMissing) {
+            ctx.drawImage(images.boss, this.x - this.width/2, this.y - this.height/2, this.width, this.height);
+        } else {
+            ctx.fillStyle = 'purple';
+            ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2); ctx.fill();
+        }
+        
+        // HP Bar
+        ctx.fillStyle = 'red';
+        ctx.fillRect(this.x - 50, this.y - 80, 100, 10);
+        ctx.fillStyle = 'green';
+        ctx.fillRect(this.x - 50, this.y - 80, 100 * (bossState.hp / CONFIG.BOSS_HP), 10);
+    }
+}
+
+
 // Global Instances
-let hand, bone, dog;
+let hand, bone, dog, boss;
 let obstacles = [];
 let golds = [];
+let terrains = [];
 
-function init() {
+function initLevel(level) {
+    currentLevel = level;
+    currentState = (level === 'BOSS') ? 'BOSS_FIGHT' : 'PLAYING';
+    
     hand = new Hand();
     bone = new Bone();
     dog = new Dog();
     obstacles = [];
     golds = [];
-    score = 0;
-    frameCount = 0;
-    startTime = Date.now();
-    document.getElementById('score').innerText = '金币: 0';
+    terrains = [];
+    
+    if (level === 1) {
+        score = 0; // Reset score for new game or keep? Usually reset for L1.
+    }
+    // L2 keeps score? "Win condition 200 points". Assuming cumulative.
+    
+    if (level === 2) {
+        // Spawn Mud/Water
+        for(let i=0; i<3; i++) terrains.push(new Terrain('nitan'));
+        for(let i=0; i<2; i++) terrains.push(new Terrain('shuitan'));
+    }
+    
+    if (level === 'BOSS') {
+        initBoss();
+    } else {
+        document.getElementById('boss-stats').classList.add('hidden');
+    }
+
+    document.getElementById('level-info').innerText = level === 'BOSS' ? 'Boss战' : `关卡: ${level}`;
+    document.getElementById('score').innerText = `金币: ${score}`;
+    
+    updateUI();
+}
+
+function initBossLevel() {
+    initLevel('BOSS');
+}
+
+function initBoss() {
+    boss = new Boss();
+    bossState.hp = CONFIG.BOSS_HP;
+    bossState.coinsCollected = 0;
+    bossState.hitsTaken = 0;
+    document.getElementById('boss-stats').classList.remove('hidden');
+    updateBossUI();
+}
+
+function updateBossUI() {
+    document.getElementById('boss-hp').innerText = bossState.hp;
+    document.getElementById('boss-hits').innerText = bossState.hitsTaken;
+    document.getElementById('boss-coins').innerText = bossState.coinsCollected;
+}
+
+function updateUI() {
+    document.getElementById('score').innerText = `金币: ${score}`;
 }
 
 function gameLoop() {
-    if (gameState !== 'PLAYING') return;
+    if (currentState !== 'PLAYING' && currentState !== 'BOSS_FIGHT') {
+        requestAnimationFrame(gameLoop);
+        return;
+    }
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // Draw "Plane" Background (Grid or Grass)
-    ctx.fillStyle = '#90EE90'; // Light Green
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    // Grid lines
-    ctx.strokeStyle = 'rgba(255,255,255,0.3)';
-    ctx.lineWidth = 2;
-    const gridSize = 100;
-    for(let x=0; x<canvas.width; x+=gridSize) {
-        ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,canvas.height); ctx.stroke();
-    }
-    for(let y=0; y<canvas.height; y+=gridSize) {
-        ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(canvas.width,y); ctx.stroke();
+    // 1. Draw Background
+    let bgImg = images.caodi;
+    if (currentLevel === 2 || currentLevel === 'BOSS') bgImg = images.shatan;
+    
+    if (bgImg && !bgImg.isMissing) {
+        // Tiled or Stretched? Stretched for mobile usually better for simplicity
+        ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+    } else {
+        ctx.fillStyle = (currentLevel === 1) ? '#90EE90' : '#F4A460';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
 
     frameCount++;
-    const diff = getDifficulty();
 
-    // Spawner logic
-    // Rate increases with difficulty. 
-    // Base: 60 frames. High diff: 20 frames.
-    const spawnRate = Math.max(20, Math.floor(60 / (diff * 0.8)));
-    
-    if (frameCount % spawnRate === 0) {
-        const rand = Math.random();
-        if (rand < 0.2) {
-            // Gold (less frequent)
-            if (golds.length < 5) golds.push(new Gold());
-        } else if (rand < 0.6) {
-            // Bullet
-            const type = Math.random() > 0.7 ? 'zidan1' : 'zidan'; // zidan1 is rare-ish
-            obstacles.push(new Bullet(type));
-        } else {
-            // Trap
-            const types = ['sword', 'xianjing1', 'xianjing2'];
-            const type = types[Math.floor(Math.random() * types.length)];
-            obstacles.push(new Trap(type));
+    // 2. Spawner
+    if (frameCount % 60 === 0) { // Every second approx
+        // Gold
+        if (golds.length < (currentState === 'BOSS_FIGHT' ? 8 : 5)) {
+             if (Math.random() < 0.4) golds.push(new Gold());
+        }
+        
+        // Obstacles
+        if (Math.random() < 0.6) {
+             const type = Math.random() > 0.5 ? 'zidan' : 'xianjing1'; // Simplified pool
+             if (type === 'zidan') obstacles.push(new Bullet(Math.random()>0.8?'zidan1':'zidan'));
+             else obstacles.push(new Trap(Math.random()>0.5?'xianjing1':'xianjing2'));
+        }
+        
+        // L2 Mud Random Spawn
+        if (currentLevel === 2 && Math.random() < 0.1 && terrains.length < 8) {
+            terrains.push(new Terrain('nitan'));
         }
     }
 
-    // Update & Draw Entities
+    // 3. Updates & Draws
     
-    // Traps (Layer 0: On ground)
-    obstacles.forEach((obs, index) => {
-        if (obs instanceof Trap) {
-            obs.update();
-            obs.draw();
-            
-            if (obs.isDangerous() && checkCollision(dog, obs)) {
-                gameOver();
-            }
-            if (obs.state === 'ACTIVE' && obs.activeTimer <= 0) {
-                obstacles.splice(index, 1);
-            }
+    // Terrains (Bottom)
+    terrains.forEach((t, idx) => {
+        t.draw();
+        // Interaction
+        if (checkCollision(dog, t)) {
+            if (t.type === 'nitan') dog.isSlowed = true;
+            if (t.type === 'shuitan') dog.isSlowed = false;
         }
     });
     
-    // Dog & Bone (Layer 1)
-    bone.update();
-    bone.draw();
-
-    dog.update(bone);
-    dog.draw();
-
-    // Bullets (Layer 2: Flying)
+    // Traps
     obstacles.forEach((obs, index) => {
-        if (obs instanceof Bullet) {
-            obs.update();
-            obs.draw();
-            
+        obs.update();
+        obs.draw();
+        
+        if (obs.isDangerous()) {
             if (checkCollision(dog, obs)) {
                 gameOver();
             }
-            if (obs.isOffScreen()) {
+            // Boss Hit Logic
+            if (currentState === 'BOSS_FIGHT' && boss && checkRectCollision(boss, obs)) {
+                // Boss hit by trap/bullet
+                bossState.hitsTaken++;
+                bossState.hp--; // Optional: does boss lose HP or just count hits? 
+                // Req: "Boss taken 10 hits". Let's assume hits count towards win.
+                // Req: "Eat gold recover 1 HP". So HP matters.
+                if (bossState.hp < 0) bossState.hp = 0;
+                
+                updateBossUI();
                 obstacles.splice(index, 1);
+                return; // Obs destroyed
             }
         }
+        
+        if (obs.activeTimer <= 0 || (obs.isOffScreen && obs.isOffScreen())) {
+            obstacles.splice(index, 1);
+        }
     });
+
+    // Boss
+    if (currentState === 'BOSS_FIGHT' && boss) {
+        boss.update(bone, golds);
+        boss.draw();
+        
+        // Boss vs Dog
+        if (checkCollision(boss, dog)) gameOver();
+        
+        // Boss vs Gold (Heal)
+        golds.forEach((g, i) => {
+            if (checkCollision(boss, g)) {
+                if (bossState.hp < CONFIG.BOSS_HP) bossState.hp++;
+                golds.splice(i, 1);
+                updateBossUI();
+            }
+        });
+        
+        // Win Condition Check
+        if (bossState.coinsCollected >= CONFIG.BOSS_COINS_NEEDED && 
+            bossState.hitsTaken >= CONFIG.BOSS_HITS_NEEDED) {
+            showVictory();
+        }
+    }
+
+    // Entities
+    bone.update();
+    bone.draw();
+    dog.update(bone);
+    dog.draw();
+    hand.draw();
 
     // Golds
     golds.forEach((gold, index) => {
         gold.draw();
         if (checkCollision(dog, gold)) {
             score += 10;
-            document.getElementById('score').innerText = '金币: ' + score;
+            updateUI();
+            
+            if (currentState === 'BOSS_FIGHT') {
+                bossState.coinsCollected++;
+                updateBossUI();
+            }
+            
             golds.splice(index, 1);
+            
+            // Level Progression
+            if (currentState === 'PLAYING') {
+                if (currentLevel === 1 && score >= CONFIG.LEVEL_1_GOAL) showLevelComplete('草地关卡完成！即将前往沙滩...');
+                if (currentLevel === 2 && score >= CONFIG.LEVEL_2_GOAL) showLevelComplete('沙滩关卡完成！Boss战即将开始！');
+            }
         }
     });
-
-    // Hand (Top Layer)
-    hand.draw();
 
     requestAnimationFrame(gameLoop);
 }
 
-function startGame() {
-    gameState = 'PLAYING';
-    document.getElementById('start-screen').classList.add('hidden');
+
+// Buttons
+document.getElementById('start-game-btn').addEventListener('click', startGame);
+document.getElementById('skip-tutorial-btn').addEventListener('click', startGame);
+document.getElementById('next-level-btn').addEventListener('click', nextLevel);
+document.getElementById('restart-btn').addEventListener('click', () => {
     document.getElementById('game-over-screen').classList.add('hidden');
-    init();
-    gameLoop();
-}
+    initLevel(1);
+});
+document.getElementById('home-btn').addEventListener('click', () => {
+    window.location.href = '../../index.html';
+});
 
-function gameOver() {
-    gameState = 'GAME_OVER';
-    document.getElementById('final-score').innerText = score;
-    document.getElementById('game-over-screen').classList.remove('hidden');
-}
-
-// UI Event Listeners
-document.getElementById('start-btn').addEventListener('click', startGame);
-document.getElementById('restart-btn').addEventListener('click', startGame);
-
-// Initial draw
-ctx.fillStyle = '#90EE90';
-ctx.fillRect(0, 0, canvas.width, canvas.height);
+// Init
+loadAssets();
+gameLoop();
