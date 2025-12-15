@@ -7,7 +7,9 @@ const CONFIG = {
     LEVEL_2_GOAL: 200, // Total score needed
     BOSS_COINS_NEEDED: 10,
     BOSS_HITS_NEEDED: 10,
-    BOSS_HP: 10
+    BOSS_HP: 10,
+    PLAYER_MAX_HP: 3,
+    BOSS_SLOW_DURATION: 300 // 5 seconds at 60fps
 };
 
 // Game State
@@ -57,16 +59,22 @@ window.addEventListener('mouseup', () => updateInput(mouse.x, mouse.y, false));
 
 // Touch Events
 window.addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    updateInput(e.touches[0].clientX, e.touches[0].clientY, true);
+    if (e.target === canvas) {
+        e.preventDefault();
+        updateInput(e.touches[0].clientX, e.touches[0].clientY, true);
+    }
 }, { passive: false });
 window.addEventListener('touchmove', (e) => {
-    e.preventDefault();
-    updateInput(e.touches[0].clientX, e.touches[0].clientY, null);
+    if (e.target === canvas) {
+        e.preventDefault();
+        updateInput(e.touches[0].clientX, e.touches[0].clientY, null);
+    }
 }, { passive: false });
 window.addEventListener('touchend', (e) => {
-    e.preventDefault(); // Prevent click emulation
-    updateInput(mouse.x, mouse.y, false);
+    if (e.target === canvas) {
+        e.preventDefault(); // Prevent click emulation
+        updateInput(mouse.x, mouse.y, false);
+    }
 });
 
 // Assets Definition
@@ -235,8 +243,26 @@ class Dog {
         this.facingRight = true;
         this.speedModifier = 1.0;
         this.isSlowed = false;
+        
+        // New mechanics
+        this.hp = 1; // Default 1, set to 3 in Boss level
+        this.invincibleTimer = 0;
     }
+    
+    takeDamage() {
+        if (this.invincibleTimer > 0) return false;
+        
+        this.hp--;
+        if (this.hp > 0) {
+            this.invincibleTimer = 120; // 2 seconds invincibility
+            return false; // Not dead yet
+        }
+        return true; // Dead
+    }
+
     update(bone) {
+        if (this.invincibleTimer > 0) this.invincibleTimer--;
+        
         let speed = this.baseSpeed * this.speedModifier;
         if (this.isSlowed) speed *= 0.5;
 
@@ -260,6 +286,9 @@ class Dog {
         this.y = Math.max(this.radius, Math.min(canvas.height - this.radius, this.y));
     }
     draw() {
+        // Blink if invincible
+        if (this.invincibleTimer > 0 && Math.floor(frameCount / 4) % 2 === 0) return;
+
         if (images.dog && !images.dog.isMissing) {
             ctx.save();
             ctx.translate(this.x, this.y);
@@ -405,16 +434,23 @@ class Bullet {
 
     draw() {
         if (this.state === 'WARNING') {
-            // Draw Exclamation Mark
+            // Draw Exclamation Mark with Direction
             ctx.fillStyle = `rgba(255, 0, 0, ${0.5 + Math.sin(frameCount * 0.3) * 0.5})`;
             ctx.beginPath();
             ctx.arc(this.indicatorX, this.indicatorY, 20, 0, Math.PI*2);
             ctx.fill();
+            
+            // Draw Arrow
+            ctx.save();
+            ctx.translate(this.indicatorX, this.indicatorY);
+            ctx.rotate(this.rotation);
             ctx.fillStyle = 'white';
-            ctx.font = 'bold 20px Arial';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText('!', this.indicatorX, this.indicatorY);
+            ctx.beginPath();
+            ctx.moveTo(10, 0);
+            ctx.lineTo(-5, 5);
+            ctx.lineTo(-5, -5);
+            ctx.fill();
+            ctx.restore();
         } else {
             const img = images[this.type];
             if (img && !img.isMissing) {
@@ -465,13 +501,44 @@ class Boss {
         this.width = 150;
         this.height = 150;
         this.radius = 60;
-        this.speed = 2.5;
+        this.speed = 1.5; // Half of Dog's baseSpeed (3)
         this.moveTimer = 0;
         this.targetX = this.x;
         this.targetY = this.y;
+        this.isSlowed = false;
+        this.slowTimer = 0;
+    }
+    
+    takeKnockback() {
+        // Push boss to the nearest edge or just away
+        // Simple: push to top or a safe distance
+        this.targetY = 50;
+        this.targetX = canvas.width / 2;
+        this.x = this.targetX;
+        this.y = this.targetY;
+        this.moveTimer = 60; // Stun briefly?
     }
 
-    update(bone, golds) {
+    update(bone, golds, terrains) {
+        // Handle Slow Status
+        if (this.isSlowed) {
+            this.slowTimer--;
+            if (this.slowTimer <= 0) this.isSlowed = false;
+        }
+
+        // Terrain Interaction
+        if (terrains) {
+            terrains.forEach(t => {
+                if (t.type === 'nitan' && checkCollision(this, t)) {
+                    this.isSlowed = true;
+                    this.slowTimer = CONFIG.BOSS_SLOW_DURATION;
+                }
+            });
+        }
+
+        let currentSpeed = this.speed;
+        if (this.isSlowed) currentSpeed *= 0.5;
+
         // State Logic
         if (this.moveTimer > 0) {
             this.moveTimer--;
@@ -519,8 +586,8 @@ class Boss {
         const dy = this.targetY - this.y;
         const dist = Math.sqrt(dx*dx + dy*dy);
         if (dist > 5) {
-            this.x += (dx/dist) * this.speed;
-            this.y += (dy/dist) * this.speed;
+            this.x += (dx/dist) * currentSpeed;
+            this.y += (dy/dist) * currentSpeed;
         }
 
         // Heal Check (Collision with gold)
@@ -562,18 +629,20 @@ function initLevel(level) {
     terrains = [];
     
     if (level === 1) {
-        score = 0; // Reset score for new game or keep? Usually reset for L1.
+        score = 0; 
+        dog.hp = 1;
     }
-    // L2 keeps score? "Win condition 200 points". Assuming cumulative.
     
     if (level === 2) {
-        // Spawn Mud/Water
+        dog.hp = 1;
+        // Initial Terrains
         for(let i=0; i<3; i++) terrains.push(new Terrain('nitan'));
         for(let i=0; i<2; i++) terrains.push(new Terrain('shuitan'));
     }
     
     if (level === 'BOSS') {
         initBoss();
+        dog.hp = CONFIG.PLAYER_MAX_HP;
     } else {
         document.getElementById('boss-stats').classList.add('hidden');
     }
@@ -630,22 +699,32 @@ function gameLoop() {
     frameCount++;
 
     // 2. Spawner
-    if (frameCount % 60 === 0) { // Every second approx
+    let spawnRate = 60;
+    if (currentState === 'BOSS_FIGHT') spawnRate = 40; // Faster spawns in Boss fight
+
+    if (frameCount % spawnRate === 0) { 
         // Gold
         if (golds.length < (currentState === 'BOSS_FIGHT' ? 8 : 5)) {
              if (Math.random() < 0.4) golds.push(new Gold());
         }
         
         // Obstacles
-        if (Math.random() < 0.6) {
-             const type = Math.random() > 0.5 ? 'zidan' : 'xianjing1'; // Simplified pool
+        let obstacleChance = 0.6;
+        if (currentState === 'BOSS_FIGHT') obstacleChance = 0.8; // More traps in Boss fight
+
+        if (Math.random() < obstacleChance) {
+             const type = Math.random() > 0.5 ? 'zidan' : 'xianjing1'; 
              if (type === 'zidan') obstacles.push(new Bullet(Math.random()>0.8?'zidan1':'zidan'));
              else obstacles.push(new Trap(Math.random()>0.5?'xianjing1':'xianjing2'));
         }
         
-        // L2 Mud Random Spawn
-        if (currentLevel === 2 && Math.random() < 0.1 && terrains.length < 8) {
-            terrains.push(new Terrain('nitan'));
+        // Random Terrain Spawn (Mud/Water)
+        // Allowed in L2 and Boss Fight
+        if (currentLevel === 2 || currentState === 'BOSS_FIGHT') {
+            if (Math.random() < 0.2 && terrains.length < 10) {
+                const type = Math.random() > 0.6 ? 'nitan' : 'shuitan';
+                terrains.push(new Terrain(type));
+            }
         }
     }
 
@@ -659,6 +738,9 @@ function gameLoop() {
             if (t.type === 'nitan') dog.isSlowed = true;
             if (t.type === 'shuitan') dog.isSlowed = false;
         }
+        // Remove old terrains if too many? Or just let them be. 
+        // Maybe remove if boss fight to keep arena changing?
+        // For now keep simple.
     });
     
     // Traps
@@ -668,15 +750,18 @@ function gameLoop() {
         
         if (obs.isDangerous()) {
             if (checkCollision(dog, obs)) {
-                gameOver();
+                if (dog.takeDamage()) {
+                    gameOver();
+                } else {
+                    // Just took damage, update UI
+                    updateUI();
+                }
             }
             // Boss Hit Logic
             if (currentState === 'BOSS_FIGHT' && boss && checkRectCollision(boss, obs)) {
                 // Boss hit by trap/bullet
                 bossState.hitsTaken++;
-                bossState.hp--; // Optional: does boss lose HP or just count hits? 
-                // Req: "Boss taken 10 hits". Let's assume hits count towards win.
-                // Req: "Eat gold recover 1 HP". So HP matters.
+                bossState.hp--; 
                 if (bossState.hp < 0) bossState.hp = 0;
                 
                 updateBossUI();
@@ -692,11 +777,18 @@ function gameLoop() {
 
     // Boss
     if (currentState === 'BOSS_FIGHT' && boss) {
-        boss.update(bone, golds);
+        boss.update(bone, golds, terrains);
         boss.draw();
         
         // Boss vs Dog
-        if (checkCollision(boss, dog)) gameOver();
+        if (checkCollision(boss, dog)) {
+            if (dog.takeDamage()) {
+                gameOver();
+            } else {
+                boss.takeKnockback();
+                updateUI();
+            }
+        }
         
         // Boss vs Gold (Heal)
         golds.forEach((g, i) => {
