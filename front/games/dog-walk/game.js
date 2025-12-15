@@ -35,6 +35,41 @@ let bossState = {
     action: 'IDLE' // IDLE, CHASE_BONE, RANDOM_MOVE
 };
 
+const bgmCommon = new Audio('assets/common.mp3');
+bgmCommon.loop = true;
+const bgmBoss = new Audio('assets/boss1.mp3');
+bgmBoss.loop = true;
+
+// Leaderboard Helper
+function loadLeaderboard() {
+    try {
+        return JSON.parse(localStorage.getItem('dogWalkLeaderboard')) || [];
+    } catch (e) {
+        return [];
+    }
+}
+
+function saveLeaderboard(name, hp) {
+    const list = loadLeaderboard();
+    list.push({ name, hp, date: new Date().toLocaleDateString() });
+    list.sort((a, b) => b.hp - a.hp); // Sort by HP descending
+    localStorage.setItem('dogWalkLeaderboard', JSON.stringify(list));
+    renderLeaderboard();
+}
+
+function renderLeaderboard() {
+    const list = loadLeaderboard();
+    const ul = document.getElementById('leaderboard-list');
+    if (ul) {
+        ul.innerHTML = '';
+        list.forEach((item, index) => {
+            const li = document.createElement('li');
+            li.textContent = `No.${index + 1} ${item.name} (剩余血量: ${item.hp})`;
+            ul.appendChild(li);
+        });
+    }
+}
+
 // Resize handling
 function resize() {
     canvas.width = window.innerWidth;
@@ -77,7 +112,6 @@ window.addEventListener('touchend', (e) => {
     }
 });
 
-// Assets Definition
 const assets = {
     dog: { src: 'assets/dog-removebg-preview.png' },
     bone: { src: 'assets/bone-removebg-preview.png' },
@@ -89,7 +123,6 @@ const assets = {
     xianjing2: { src: 'assets/xianjing2-removebg-preview.png' },
     zidan: { src: 'assets/zidan-removebg-preview.png' },
     zidan1: { src: 'assets/zidan1-removebg-preview.png' },
-    // New Assets
     caodi: { src: 'assets/caodi.png' },
     shatan: { src: 'assets/shatan.png' },
     nitan: { src: 'assets/nitan.png' },
@@ -138,6 +171,11 @@ function showTutorial() {
 function startGame() {
     document.getElementById('tutorial-screen').classList.add('hidden');
     document.getElementById('score-board').classList.remove('hidden');
+    
+    // Play Common BGM
+    bgmCommon.currentTime = 0;
+    bgmCommon.play().catch(e => console.log("Audio play failed:", e));
+    
     initLevel(1);
 }
 
@@ -154,14 +192,25 @@ function nextLevel() {
 }
 
 function gameOver() {
+    bgmCommon.pause();
+    bgmBoss.pause();
     currentState = 'GAME_OVER';
     document.getElementById('final-score').innerText = score;
     document.getElementById('game-over-screen').classList.remove('hidden');
 }
 
 function showVictory() {
+    bgmBoss.pause();
     currentState = 'VICTORY';
     document.getElementById('victory-screen').classList.remove('hidden');
+    
+    // Leaderboard Setup
+    const nameInput = document.getElementById('player-name');
+    if (nameInput) nameInput.value = '';
+    const submitBtn = document.getElementById('submit-score-btn');
+    if (submitBtn) submitBtn.disabled = false;
+    
+    renderLeaderboard();
 }
 
 // --- Game Logic ---
@@ -654,6 +703,9 @@ function initLevel(level) {
 }
 
 function initBossLevel() {
+    bgmCommon.pause();
+    bgmBoss.currentTime = 0;
+    bgmBoss.play().catch(e => console.log("Audio play failed:", e));
     initLevel('BOSS');
 }
 
@@ -845,10 +897,23 @@ document.getElementById('skip-tutorial-btn').addEventListener('click', startGame
 document.getElementById('next-level-btn').addEventListener('click', nextLevel);
 document.getElementById('restart-btn').addEventListener('click', () => {
     document.getElementById('game-over-screen').classList.add('hidden');
-    initLevel(1);
+    startGame();
 });
 document.getElementById('home-btn').addEventListener('click', () => {
     window.location.href = '../../index.html';
+});
+
+document.getElementById('submit-score-btn').addEventListener('click', () => {
+    const nameInput = document.getElementById('player-name');
+    const name = nameInput.value.trim();
+    if (name) {
+        saveLeaderboard(name, dog.hp);
+        nameInput.value = '';
+        document.getElementById('submit-score-btn').disabled = true;
+        alert('成绩已提交！');
+    } else {
+        alert('请输入名字！');
+    }
 });
 
 // Init
