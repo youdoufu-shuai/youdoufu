@@ -10,16 +10,51 @@
     <div id="game-container">
         <canvas id="gameCanvas"></canvas>
         <div id="ui-layer">
-            <div id="score">金币: 0</div>
-            <div id="start-screen">
-                <h1>遛狗大冒险</h1>
-                <p>按住屏幕拿起骨头，引导狗狗避开危险！</p>
-                <button id="start-btn">开始游戏</button>
+            <div id="loading-screen">
+                <h1>加载中...</h1>
+                <div id="loading-bar-container"><div id="loading-bar"></div></div>
             </div>
+            
+            <div id="score-board" class="hidden">
+                <div id="score">金币: 0</div>
+                <div id="level-info">关卡: 1</div>
+                <div id="boss-stats" class="hidden">
+                    Boss HP: <span id="boss-hp">10</span> | 
+                    Hits: <span id="boss-hits">0</span>/10 | 
+                    Coins: <span id="boss-coins">0</span>/10
+                </div>
+            </div>
+
+            <div id="tutorial-screen" class="hidden">
+                <h1>新手引导</h1>
+                <div class="tutorial-content">
+                    <p>1. 👆 **按住屏幕**：手掌握紧，可以抓起骨头。</p>
+                    <p>2. 🖐 **松开屏幕**：放下骨头，狗狗会走过来。</p>
+                    <p>3. 🦴 **引导**：用骨头引导狗狗躲避危险，收集金币。</p>
+                    <p>4. ⚠️ **注意**：躲避飞来的子弹和地上的陷阱！</p>
+                </div>
+                <div class="btn-group">
+                    <button id="skip-tutorial-btn">跳过</button>
+                    <button id="start-game-btn">开始游戏</button>
+                </div>
+            </div>
+
+            <div id="level-complete-screen" class="hidden">
+                <h1>关卡完成!</h1>
+                <p id="level-msg">恭喜通关！</p>
+                <button id="next-level-btn">下一关</button>
+            </div>
+
             <div id="game-over-screen" class="hidden">
                 <h1>游戏结束</h1>
                 <p>最终得分: <span id="final-score">0</span></p>
                 <button id="restart-btn">再玩一次</button>
+            </div>
+            
+            <div id="victory-screen" class="hidden">
+                <h1>恭喜通关!</h1>
+                <p>你打败了Boss并完成了挑战！</p>
+                <button id="home-btn">返回主页</button>
             </div>
         </div>
     </div>
