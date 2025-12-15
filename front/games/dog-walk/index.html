@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>遛狗大冒险</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="gameCanvas"></canvas>
+        <div id="ui-layer">
+            <div id="score">金币: 0</div>
+            <div id="start-screen">
+                <h1>遛狗大冒险</h1>
+                <p>按住屏幕拿起骨头，引导狗狗避开危险！</p>
+                <button id="start-btn">开始游戏</button>
+            </div>
+            <div id="game-over-screen" class="hidden">
+                <h1>游戏结束</h1>
+                <p>最终得分: <span id="final-score">0</span></p>
+                <button id="restart-btn">再玩一次</button>
+            </div>
+        </div>
+    </div>
+    <script src="game.js"></script>
+</body>
+</html>
