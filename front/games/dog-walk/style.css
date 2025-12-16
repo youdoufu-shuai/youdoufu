@@ -72,7 +72,7 @@ canvas {
     pointer-events: none;
 }
 
-#score, #level-info {
+#score, #level-info, #combo-indicator {
     font-size: 20px;
     color: white;
     font-weight: bold;
@@ -83,6 +83,13 @@ canvas {
     margin-bottom: 10px;
 }
 
+#combo-indicator {
+    color: #FFD700; /* Gold color */
+    background: rgba(0, 0, 0, 0.6);
+    border: 2px solid #FFD700;
+    transition: transform 0.1s;
+}
+
 #boss-stats {
     background: rgba(255, 0, 0, 0.6);
     color: white;
@@ -91,6 +98,52 @@ canvas {
     font-weight: bold;
     margin-top: 10px;
     text-align: center;
+}
+
+/* Status Bars */
+#status-bars {
+    position: absolute;
+    top: 80px; /* Below score board roughly */
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 20px;
+    pointer-events: none;
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    background: rgba(0,0,0,0.5);
+    padding: 5px 10px;
+    border-radius: 15px;
+}
+
+.status-icon {
+    font-size: 20px;
+    margin-right: 5px;
+}
+
+.bar-bg {
+    width: 100px;
+    height: 10px;
+    background: #555;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+#dash-cd-bar {
+    width: 100%;
+    height: 100%;
+    background: #00BFFF; /* Deep Sky Blue */
+    transition: width 0.1s linear;
+}
+
+#magnet-duration-bar {
+    width: 100%;
+    height: 100%;
+    background: #FF4500; /* Orange Red */
+    transition: width 0.1s linear;
 }
 
 /* Screens */
@@ -159,4 +212,42 @@ h1 {
     color: #333;
     margin: 0 0 20px 0;
     font-size: 28px;
+}
+
+/* Orientation Lock */
+#orientation-lock {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #222;
+    z-index: 9999;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    text-align: center;
+}
+
+.rotate-icon {
+    font-size: 50px;
+    margin-top: 20px;
+    animation: rotate 2s infinite;
+}
+
+@keyframes rotate {
+    0% { transform: rotate(0deg); }
+    50% { transform: rotate(-90deg); }
+    100% { transform: rotate(0deg); }
+}
+
+@media screen and (orientation: portrait) and (max-width: 768px) {
+    #orientation-lock {
+        display: flex;
+    }
+    #game-container {
+        display: none;
+    }
 }

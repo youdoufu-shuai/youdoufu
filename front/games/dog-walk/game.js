@@ -9,7 +9,13 @@ const CONFIG = {
     BOSS_HITS_NEEDED: 10,
     BOSS_HP: 10,
     PLAYER_MAX_HP: 3,
-    BOSS_SLOW_DURATION: 300 // 5 seconds at 60fps
+    BOSS_SLOW_DURATION: 300, // 5 seconds at 60fps
+    // New Mechanics
+    COMBO_TIMEOUT: 120, // 2 seconds to keep combo
+    MAGNET_DURATION: 600, // 10 seconds
+    DASH_COOLDOWN: 180, // 3 seconds
+    DASH_DURATION: 15, // 0.25 seconds
+    DASH_SPEED_MULT: 3.0
 };
 
 // Game State
@@ -18,6 +24,12 @@ let currentLevel = 1;
 let score = 0;
 let frameCount = 0;
 let startTime = 0;
+
+// New Mechanics State
+let comboCount = 0;
+let comboTimer = 0;
+let magnetActive = false;
+let magnetTimer = 0;
 
 // Boss State
 let bossState = {
@@ -80,11 +92,21 @@ resize();
 
 // Input handling
 const mouse = { x: canvas.width / 2, y: canvas.height / 2, down: false };
+let lastClickTime = 0; // For double tap detection
 
 function updateInput(x, y, isDown) {
     mouse.x = x;
     mouse.y = y;
-    if (isDown !== null) mouse.down = isDown;
+    if (isDown !== null) {
+        if (isDown && !mouse.down) { // On press down
+            const now = Date.now();
+            if (now - lastClickTime < 300) { // Double tap within 300ms
+                if (dog) dog.tryDash();
+            }
+            lastClickTime = now;
+        }
+        mouse.down = isDown;
+    }
 }
 
 // Mouse Events
@@ -287,7 +309,7 @@ class Dog {
         this.y = 100;
         this.width = 80;
         this.height = 60;
-        this.baseSpeed = 3;
+        this.baseSpeed = 4; // Slightly faster
         this.radius = 25;
         this.facingRight = true;
         this.speedModifier = 1.0;
@@ -296,10 +318,22 @@ class Dog {
         // New mechanics
         this.hp = 1; // Default 1, set to 3 in Boss level
         this.invincibleTimer = 0;
+        
+        // Dash properties
+        this.dashTimer = 0; // Cooldown
+        this.dashActiveTimer = 0; // Duration
+    }
+    
+    tryDash() {
+        if (this.dashTimer <= 0) {
+            this.dashActiveTimer = CONFIG.DASH_DURATION;
+            this.dashTimer = CONFIG.DASH_COOLDOWN;
+            // Visual/Sound effect could be added here
+        }
     }
     
     takeDamage() {
-        if (this.invincibleTimer > 0) return false;
+        if (this.invincibleTimer > 0 || this.dashActiveTimer > 0) return false; // Invincible during dash
         
         this.hp--;
         if (this.hp > 0) {
@@ -311,9 +345,16 @@ class Dog {
 
     update(bone) {
         if (this.invincibleTimer > 0) this.invincibleTimer--;
+        if (this.dashTimer > 0) this.dashTimer--;
         
         let speed = this.baseSpeed * this.speedModifier;
         if (this.isSlowed) speed *= 0.5;
+        
+        // Dash Logic
+        if (this.dashActiveTimer > 0) {
+            this.dashActiveTimer--;
+            speed *= CONFIG.DASH_SPEED_MULT;
+        }
 
         if (bone.isHeld) {
             this.facingRight = bone.x > this.x;
@@ -348,9 +389,15 @@ class Dog {
                 ctx.fillStyle = 'rgba(139, 69, 19, 0.5)'; // Brown tint
                 ctx.beginPath(); ctx.arc(0, 20, 10, 0, Math.PI*2); ctx.fill();
             }
+            // Draw Dash Effect
+            if (this.dashActiveTimer > 0) {
+                ctx.strokeStyle = 'white';
+                ctx.lineWidth = 3;
+                ctx.beginPath(); ctx.arc(0, 0, this.width/2 + 5, 0, Math.PI*2); ctx.stroke();
+            }
             ctx.restore();
         } else {
-            ctx.fillStyle = '#8B4513';
+            ctx.fillStyle = this.dashActiveTimer > 0 ? '#ADD8E6' : '#8B4513'; // Blue tint if dashing
             ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2); ctx.fill();
             // Eyes to show direction
             ctx.fillStyle = 'white';
@@ -543,6 +590,29 @@ class Gold {
     }
 }
 
+class Magnet {
+    constructor() {
+        this.x = Math.random() * (canvas.width - 60) + 30;
+        this.y = Math.random() * (canvas.height - 60) + 30;
+        this.width = 40;
+        this.height = 40;
+        this.radius = 20;
+    }
+    draw() {
+        // Draw a magnet shape or simpler representation
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.fillStyle = 'red';
+        ctx.beginPath(); ctx.arc(0, 0, this.radius, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = 'white';
+        ctx.font = '20px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('U', 0, 2); // Magnet shape roughly
+        ctx.restore();
+    }
+}
+
 class Boss {
     constructor() {
         this.x = canvas.width / 2;
@@ -664,6 +734,7 @@ class Boss {
 let hand, bone, dog, boss;
 let obstacles = [];
 let golds = [];
+let magnets = [];
 let terrains = [];
 
 function initLevel(level) {
@@ -675,7 +746,14 @@ function initLevel(level) {
     dog = new Dog();
     obstacles = [];
     golds = [];
+    magnets = [];
     terrains = [];
+    
+    // Reset mechanics
+    comboCount = 0;
+    comboTimer = 0;
+    magnetActive = false;
+    magnetTimer = 0;
     
     if (level === 1) {
         score = 0; 
@@ -725,7 +803,36 @@ function updateBossUI() {
 }
 
 function updateUI() {
-    document.getElementById('score').innerText = `金币: ${score}`;
+    document.getElementById('score').innerText = `金币: ${Math.floor(score)}`;
+    
+    const comboEl = document.getElementById('combo-indicator');
+    const comboCountEl = document.getElementById('combo-count');
+    if (comboCount > 1) {
+        comboEl.classList.remove('hidden');
+        comboCountEl.innerText = comboCount;
+        comboEl.style.transform = `scale(${1 + Math.min(comboCount * 0.1, 0.5)})`;
+    } else {
+        comboEl.classList.add('hidden');
+    }
+
+    // Status Bars
+    if (dog) {
+        // Dash CD: Fills up when ready
+        const dashPercent = Math.max(0, 100 - (dog.dashTimer / CONFIG.DASH_COOLDOWN * 100));
+        const dashBar = document.getElementById('dash-cd-bar');
+        if (dashBar) dashBar.style.width = `${dashPercent}%`;
+    }
+
+    const magnetStatus = document.getElementById('magnet-status');
+    if (magnetStatus) {
+        if (magnetActive) {
+            magnetStatus.classList.remove('hidden');
+            const magPercent = (magnetTimer / CONFIG.MAGNET_DURATION) * 100;
+            document.getElementById('magnet-duration-bar').style.width = `${magPercent}%`;
+        } else {
+            magnetStatus.classList.add('hidden');
+        }
+    }
 }
 
 function gameLoop() {
@@ -751,18 +858,38 @@ function gameLoop() {
     frameCount++;
 
     // 2. Spawner
-    let spawnRate = 60;
-    if (currentState === 'BOSS_FIGHT') spawnRate = 40; // Faster spawns in Boss fight
+    let spawnRate = 50; // Increased base spawn rate
+    if (currentState === 'BOSS_FIGHT') spawnRate = 30; // Even faster
+
+    // Magnet Timer
+    if (magnetActive) {
+        magnetTimer--;
+        if (magnetTimer <= 0) magnetActive = false;
+    }
+
+    // Combo Timer
+    if (comboTimer > 0) {
+        comboTimer--;
+        if (comboTimer <= 0) {
+            comboCount = 0;
+            updateUI();
+        }
+    }
 
     if (frameCount % spawnRate === 0) { 
         // Gold
         if (golds.length < (currentState === 'BOSS_FIGHT' ? 8 : 5)) {
              if (Math.random() < 0.4) golds.push(new Gold());
         }
+
+        // Magnet Spawner (Rare)
+        if (!magnetActive && magnets.length === 0 && Math.random() < 0.05) {
+            magnets.push(new Magnet());
+        }
         
         // Obstacles
-        let obstacleChance = 0.6;
-        if (currentState === 'BOSS_FIGHT') obstacleChance = 0.8; // More traps in Boss fight
+        let obstacleChance = 0.8; // Increased chance
+        if (currentState === 'BOSS_FIGHT') obstacleChance = 0.9; // More traps in Boss fight
 
         if (Math.random() < obstacleChance) {
              const type = Math.random() > 0.5 ? 'zidan' : 'xianjing1'; 
@@ -865,11 +992,41 @@ function gameLoop() {
     dog.draw();
     hand.draw();
 
+    // Magnets
+    magnets.forEach((mag, index) => {
+        mag.draw();
+        if (checkCollision(dog, mag)) {
+            magnetActive = true;
+            magnetTimer = CONFIG.MAGNET_DURATION;
+            magnets.splice(index, 1);
+            // Optional: Show "Magnet Activated!" text
+        }
+    });
+
     // Golds
     golds.forEach((gold, index) => {
+        // Magnet Effect
+        if (magnetActive) {
+            const dx = dog.x - gold.x;
+            const dy = dog.y - gold.y;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            if (dist < 300) { // Magnet range
+                gold.x += (dx / dist) * 5;
+                gold.y += (dy / dist) * 5;
+            }
+        }
+
         gold.draw();
         if (checkCollision(dog, gold)) {
-            score += 10;
+            // Combo Logic
+            comboCount++;
+            comboTimer = CONFIG.COMBO_TIMEOUT;
+            
+            // Score calculation with combo
+            const comboBonus = Math.min(comboCount, 10); // Max 10x multiplier effect
+            const points = 10 + (comboBonus * 2);
+            score += points;
+            
             updateUI();
             
             if (currentState === 'BOSS_FIGHT') {

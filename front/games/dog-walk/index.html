@@ -7,9 +7,27 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div id="orientation-lock">
+        <div class="lock-content">
+            <h1>请旋转手机</h1>
+            <p>为了更好的游戏体验，请横屏游玩</p>
+            <div class="rotate-icon">📱 ➡️ 🔄</div>
+        </div>
+    </div>
     <div id="game-container">
         <canvas id="gameCanvas"></canvas>
         <div id="ui-layer">
+            <div id="status-bars">
+                <div class="status-item">
+                    <span class="status-icon">⚡️</span>
+                    <div class="bar-bg"><div id="dash-cd-bar"></div></div>
+                </div>
+                <div id="magnet-status" class="status-item hidden">
+                    <span class="status-icon">🧲</span>
+                    <div class="bar-bg"><div id="magnet-duration-bar"></div></div>
+                </div>
+            </div>
+
             <div id="loading-screen">
                 <h1>加载中...</h1>
                 <div id="loading-bar-container"><div id="loading-bar"></div></div>
@@ -18,6 +36,7 @@
             <div id="score-board" class="hidden">
                 <div id="score">金币: 0</div>
                 <div id="level-info">关卡: 1</div>
+                <div id="combo-indicator" class="hidden">Combo: x<span id="combo-count">0</span></div>
                 <div id="boss-stats" class="hidden">
                     boss血量: <span id="boss-hp">10</span> | 
                     boss被攻击次数: <span id="boss-hits">0</span>/10 | 
@@ -30,8 +49,9 @@
                 <div class="tutorial-content">
                     <p>1. 👆 **按住屏幕**：手掌握紧，可以抓起骨头。</p>
                     <p>2. 🖐 **松开屏幕**：放下骨头，狗狗会走过来。</p>
-                    <p>3. 🦴 **引导**：用骨头引导狗狗躲避危险，收集金币。</p>
-                    <p>4. ⚠️ **注意**：躲避飞来的子弹和地上的陷阱！</p>
+                    <p>3. ⚡️ **双击屏幕**：狗狗会加速冲刺！(无敌且快速)</p>
+                    <p>4. 🦴 **引导**：用骨头引导狗狗躲避危险，收集金币。</p>
+                    <p>5. ⚠️ **注意**：躲避飞来的子弹和地上的陷阱！</p>
                 </div>
                 <div class="btn-group">
                     <button id="skip-tutorial-btn">跳过</button>
