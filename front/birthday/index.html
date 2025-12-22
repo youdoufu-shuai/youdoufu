@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>生日快乐 - 献给最亲爱的妈妈</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- 预加载关键字体 -->
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Noto+Serif+SC:wght@500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- BGM -->
+    <audio id="bgm" loop preload="auto">
+        <source src="assets/bgm.mp3" type="audio/mpeg">
+    </audio>
+
+    <div class="music-control">
+        <div id="music-toggle" class="music-disc">
+            <span class="music-icon">🎵</span>
+        </div>
+        <div class="music-panel hidden" id="music-panel">
+            <button id="music-play-btn" class="icon-btn">⏯</button>
+            <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="0.5">
+            <span class="music-label">告白之夜</span>
+        </div>
+    </div>
+
+    <!-- Global Overlay for Particles/Confetti -->
+    <canvas id="effects-canvas"></canvas>
+    <div class="meteor-shower"></div> <!-- 流星容器 (Global) -->
+
+    <!-- 1. Envelope Section -->
+    <section id="section-envelope" class="page active">
+        <div class="center-wrapper">
+            <div class="envelope-wrapper">
+                <div class="envelope" id="envelope-btn">
+                    <div class="flap"></div>
+                    <div class="body">
+                        <div class="seal">❤</div>
+                    </div>
+                    <div class="letter-preview">To: Mom</div>
+                </div>
+                <div class="envelope-shadow"></div>
+            </div>
+            <div class="text-container">
+                <h1 id="env-title"></h1>
+                <p id="env-subtitle" class="pulse"></p>
+            </div>
+        </div>
+
+        <!-- Date Picker Modal -->
+        <div id="date-picker-modal" class="modal hidden">
+            <div class="modal-card calendar-card">
+                <div class="calendar-header">
+                    <span class="icon">📅</span>
+                    <h3>请输入您的生日</h3>
+                </div>
+                <div class="date-selector-container">
+                    <div class="select-group">
+                        <select id="month-select"></select>
+                        <span class="label">月</span>
+                    </div>
+                    <div class="select-group">
+                        <select id="day-select"></select>
+                        <span class="label">日</span>
+                    </div>
+                </div>
+                <button id="unlock-btn">确认开启</button>
+                <p id="error-msg" class="error-text hidden">日期不对哦，请再想想~</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. Cake Section -->
+    <section id="section-cake" class="page hidden">
+        <div class="floating-balloons">
+            <!-- Balloons injected via CSS/JS -->
+            <div class="balloon b1"></div>
+            <div class="balloon b2"></div>
+            <div class="balloon b3"></div>
+            <div class="balloon b4"></div>
+            <div class="balloon b5"></div>
+        </div>
+
+        <div class="center-wrapper">
+            <div class="cake-header">
+                <h1 class="script-font" id="cake-title-en"></h1>
+                <h2 class="serif-font" id="cake-title-cn"></h2>
+            </div>
+
+            <div class="cake-stage">
+                <div class="cake">
+                    <div class="plate"></div>
+                    <div class="layer layer-bottom"></div>
+                    <div class="layer layer-middle"></div>
+                    <div class="layer layer-top"></div>
+                    <div class="icing"></div>
+                    <div class="candle-container">
+                        <div class="candle">
+                            <div class="flame blink"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cake-message" id="cake-msg-container">
+                <!-- Messages injected -->
+            </div>
+
+            <div class="interaction-hint blink" id="blow-hint"></div>
+        </div>
+    </section>
+
+    <!-- 3. Wish Section -->
+    <section id="section-wish" class="page hidden">
+        <div class="star-field"></div>
+        <div class="center-wrapper">
+            <div class="wish-content fade-in-up">
+                <h2 id="wish-text"></h2>
+                <p id="wish-subtext"></p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3.5 Slideshow Section -->
+    <section id="section-slideshow" class="page hidden">
+        <div class="slideshow-wrapper">
+            <!-- Slides injected via JS -->
+        </div>
+        <div class="slideshow-overlay">
+            <h2 id="slideshow-text" class="fade-text"></h2>
+        </div>
+        <button id="skip-slideshow-btn" class="skip-btn">进入照片墙 &gt;&gt;</button>
+    </section>
+
+    <!-- 4. Album Section (Immersive Grid) -->
+    <section id="section-album" class="page hidden">
+        <div class="album-background"></div>
+        <div class="album-content-wrapper">
+            <div class="album-header-container fade-in-scroll">
+                <h2 id="album-title"></h2>
+                <p id="album-subtitle"></p>
+            </div>
+            
+            <div class="masonry-grid" id="photo-grid">
+                <!-- Photos injected here -->
+            </div>
+
+            <!-- Lightbox -->
+            <div id="lightbox" class="lightbox hidden">
+                <div class="lightbox-backdrop"></div>
+                <span class="close-lightbox" id="lightbox-close">&times;</span>
+                <div class="lightbox-content">
+                    <img id="lightbox-img" src="" alt="Full view">
+                    <div class="lightbox-caption"></div>
+                </div>
+                <div class="lightbox-nav">
+                    <button id="lightbox-prev" class="nav-btn">&#10094;</button>
+                    <button id="lightbox-next" class="nav-btn">&#10095;</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. Ending Section (Redesigned) -->
+    <section id="section-ending" class="page hidden">
+        <div class="ending-bg-layer"></div>
+        <div class="ending-content">
+            <div class="poem-showcase" id="poem-container">
+                <!-- Acrostic Poem injected here -->
+            </div>
+            
+            <div class="message-card">
+                <h1 id="end-title"></h1>
+                <div class="divider-line"></div>
+                <div id="card-body-text" class="message-body"></div>
+                <div class="signature-block">
+                    <span id="card-signature"></span>
+                    <div class="stamp">❤</div>
+                </div>
+                <button id="restart-btn" class="restart-btn hidden"></button>
+            </div>
+        </div>
+    </section>
+
+    <script src="config.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

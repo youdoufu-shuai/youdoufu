@@ -147,7 +147,7 @@ canvas {
 }
 
 /* Screens */
-#tutorial-screen, #level-complete-screen, #game-over-screen, #victory-screen {
+#tutorial-screen, #level-complete-screen, #game-over-screen, #victory-screen, #boss-intro-screen {
     background: rgba(255, 255, 255, 0.95);
     padding: 30px;
     border-radius: 20px;
@@ -157,6 +157,36 @@ canvas {
     max-width: 85%;
     width: 400px;
     animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.boss-intro-content {
+    text-align: left;
+    margin-bottom: 25px;
+    font-size: 16px;
+    color: #444;
+}
+
+.boss-intro-content p {
+    margin: 8px 0;
+}
+
+.click-hint {
+    margin-top: 20px;
+    font-size: 18px;
+    color: #FF6B6B;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 10px;
+    border: 2px dashed #FF6B6B;
+    border-radius: 10px;
+}
+
+.blink {
+    animation: blinker 1.5s linear infinite;
+}
+
+@keyframes blinker {
+    50% { opacity: 0.5; }
 }
 
 @keyframes popIn {

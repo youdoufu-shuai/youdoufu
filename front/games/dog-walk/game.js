@@ -170,7 +170,7 @@ function loadAssets() {
             
             if (assetsLoaded === totalAssets) {
                 setTimeout(() => {
-                    document.getElementById('loading-screen').classList.add('hidden');
+                    // document.getElementById('loading-screen').classList.add('hidden'); // Removed, handled in showTutorial
                     showTutorial();
                 }, 500);
             }
@@ -187,6 +187,7 @@ function loadAssets() {
 // --- UI Management ---
 function showTutorial() {
     currentState = 'TUTORIAL';
+    document.getElementById('loading-screen').classList.add('hidden'); // Ensure loading is hidden
     document.getElementById('tutorial-screen').classList.remove('hidden');
 }
 
@@ -207,10 +208,16 @@ function showLevelComplete(msg) {
     document.getElementById('level-complete-screen').classList.remove('hidden');
 }
 
+function showBossIntro() {
+    currentState = 'BOSS_INTRO';
+    document.getElementById('level-complete-screen').classList.add('hidden');
+    document.getElementById('boss-intro-screen').classList.remove('hidden');
+}
+
 function nextLevel() {
     document.getElementById('level-complete-screen').classList.add('hidden');
     if (currentLevel === 1) initLevel(2);
-    else if (currentLevel === 2) initBossLevel();
+    else if (currentLevel === 2) showBossIntro();
 }
 
 function gameOver() {
@@ -781,6 +788,8 @@ function initLevel(level) {
 }
 
 function initBossLevel() {
+    currentState = 'BOSS_FIGHT';
+    document.getElementById('boss-intro-screen').classList.add('hidden');
     bgmCommon.pause();
     bgmBoss.currentTime = 0;
     bgmBoss.play().catch(e => console.log("Audio play failed:", e));
@@ -1049,8 +1058,20 @@ function gameLoop() {
 
 
 // Buttons
-document.getElementById('start-game-btn').addEventListener('click', startGame);
-document.getElementById('skip-tutorial-btn').addEventListener('click', startGame);
+// Tutorial Screen Click
+document.getElementById('tutorial-screen').addEventListener('click', () => {
+    if (currentState === 'TUTORIAL') {
+        startGame();
+    }
+});
+
+// Boss Intro Screen Click
+document.getElementById('boss-intro-screen').addEventListener('click', () => {
+    if (currentState === 'BOSS_INTRO') {
+        initBossLevel();
+    }
+});
+
 document.getElementById('next-level-btn').addEventListener('click', nextLevel);
 document.getElementById('restart-btn').addEventListener('click', () => {
     document.getElementById('game-over-screen').classList.add('hidden');
