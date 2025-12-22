@@ -279,20 +279,37 @@ body {
     color: #888;
 }
 
+/* Enhanced Unlock Button */
 .calendar-card button {
-    background: var(--deep-pink);
+    background: linear-gradient(45deg, #FF69B4, #FF1493);
     color: white;
     border: none;
-    padding: 12px 35px;
-    border-radius: 25px;
-    font-size: 1rem;
+    padding: 15px 40px;
+    border-radius: 50px;
+    font-size: 1.2rem;
+    font-weight: bold;
     cursor: pointer;
-    box-shadow: 0 4px 10px rgba(255, 105, 180, 0.3);
-    transition: transform 0.2s;
+    box-shadow: 0 10px 20px rgba(255, 105, 180, 0.4);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.27);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    animation: pulseBtn 2s infinite;
+}
+
+.calendar-card button:hover {
+    transform: scale(1.1) translateY(-3px);
+    box-shadow: 0 15px 30px rgba(255, 105, 180, 0.6);
+    background: linear-gradient(45deg, #FF1493, #FF69B4);
 }
 
 .calendar-card button:active {
     transform: scale(0.95);
+    box-shadow: 0 5px 10px rgba(255, 105, 180, 0.3);
+}
+
+@keyframes pulseBtn {
+    0% { box-shadow: 0 0 0 0 rgba(255, 105, 180, 0.7); }
+    70% { box-shadow: 0 0 0 15px rgba(255, 105, 180, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 105, 180, 0); }
 }
 
 .error-text {
@@ -340,6 +357,19 @@ body {
     background: var(--primary-pink);
     opacity: 0.8;
     animation: floatUp 10s linear infinite;
+    cursor: pointer; /* Interactive */
+    transition: transform 0.1s;
+}
+
+.balloon:active {
+    transform: scale(0.9);
+}
+
+.balloon.popped {
+    opacity: 0;
+    transform: scale(2);
+    transition: all 0.1s ease-out;
+    pointer-events: none;
 }
 
 .balloon::before {
@@ -656,53 +686,104 @@ body {
     letter-spacing: 1px;
 }
 
-.masonry-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 20px;
-    padding-bottom: 60px;
-}
-
-.grid-item {
-    position: relative;
-    border-radius: 15px;
-    overflow: hidden;
-    cursor: pointer;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.27), box-shadow 0.4s;
-    background: white;
-    opacity: 0; /* For scroll animation */
-    transform: translateY(40px);
-    aspect-ratio: 1 / 1; /* Default square */
-}
-
-/* Staggered aspect ratios for visual interest if images allow, 
-   but since we load images dynamically and they might be different sizes,
-   let's keep container square or auto. 
-   For 'masonry' feel with same-size images, we vary the grid span or just keep it clean.
-   Let's keep it square for consistency but add a hover effect.
-*/
-
-.grid-item.visible {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-.grid-item:hover {
-    transform: translateY(-10px) scale(1.02);
-    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-    z-index: 2;
-}
-
-.grid-item img {
+/* --- Photo Film Strip (Replaces Carousel) --- */
+.film-strip-wrapper {
     width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.8s;
+    overflow: hidden;
+    position: relative;
+    padding: 60px 0;
+    /* Tilted Effect: Left high, Right low (Clockwise rotation) */
+    transform: rotate(3deg) scale(1.05); 
+    /* scale to prevent edges from showing background if container is tight */
 }
 
-.grid-item:hover img {
-    transform: scale(1.15);
+.film-strip-track {
+    display: flex;
+    gap: 30px;
+    width: max-content;
+    /* Move from Right to Left */
+    animation: scrollFilm 40s linear infinite;
+}
+
+/* Pause on hover if desired, maybe not for film strip */
+/* .film-strip-track:hover { animation-play-state: paused; } */
+
+@keyframes scrollFilm {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); } /* Assumes content is doubled */
+}
+
+.film-frame {
+    position: relative;
+    background: #1a1a1a;
+    padding: 15px 5px; /* Top/Bottom padding for sprocket holes */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    border-radius: 4px;
+    flex-shrink: 0;
+    width: 300px; /* Fixed width for consistency */
+    height: 220px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Sprocket Holes */
+.film-frame::before, .film-frame::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 15px;
+    background-image: radial-gradient(circle, #fff 3px, transparent 4px);
+    background-size: 20px 15px;
+    background-position: center;
+}
+
+.film-frame::before { top: 2px; }
+.film-frame::after { bottom: 2px; }
+
+.film-frame img {
+    width: 95%;
+    height: 180px; /* Fixed height inside frame */
+    object-fit: cover;
+    border: 1px solid #333;
+    display: block;
+    cursor: pointer;
+    transition: transform 0.3s;
+}
+
+.film-frame:hover img {
+    transform: scale(1.05);
+}
+
+
+/* Styled "To Ending" Button */
+.secondary-btn {
+    background: linear-gradient(45deg, #FF69B4, #FF1493);
+    color: white;
+    border: none;
+    padding: 15px 40px;
+    border-radius: 50px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 10px 20px rgba(255, 105, 180, 0.4);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.27);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    animation: pulseBtn 2s infinite;
+    margin: 40px auto 0;
+    display: block;
+}
+
+.secondary-btn:hover {
+    transform: scale(1.1) translateY(-3px);
+    box-shadow: 0 15px 30px rgba(255, 105, 180, 0.6);
+    background: linear-gradient(45deg, #FF1493, #FF69B4);
+}
+
+.secondary-btn:active {
+    transform: scale(0.95);
+    box-shadow: 0 5px 10px rgba(255, 105, 180, 0.3);
 }
 
 /* Enhanced Lightbox */
@@ -1034,7 +1115,7 @@ body {
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
     pointer-events: none;
-    z-index: 999;
+    z-index: 9999; /* Ensure on top of everything including overlays */
     overflow: hidden;
 }
 
@@ -1043,9 +1124,9 @@ body {
     top: 50%;
     left: 50%;
     height: 2px;
-    background: linear-gradient(-45deg, rgba(95, 145, 255, 1), rgba(0, 0, 255, 0));
+    background: linear-gradient(-45deg, rgba(255, 255, 255, 1), rgba(0, 0, 255, 0)); /* Whiter head */
     border-radius: 999px;
-    filter: drop-shadow(0 0 6px rgba(105, 155, 255, 1));
+    filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.8));
     animation: tail 3s ease-in-out infinite, shooting 3s ease-in-out infinite;
     opacity: 0;
 }
@@ -1056,7 +1137,7 @@ body {
     top: calc(50% - 1px);
     right: 0;
     height: 2px;
-    background: linear-gradient(-45deg, rgba(0, 0, 255, 0), rgba(95, 145, 255, 1), rgba(0, 0, 255, 0));
+    background: linear-gradient(-45deg, rgba(0, 0, 255, 0), rgba(255, 255, 255, 1), rgba(0, 0, 255, 0));
     transform: translateX(50%) rotateZ(45deg);
     border-radius: 100%;
     animation: shining 3s ease-in-out infinite;
@@ -1068,7 +1149,7 @@ body {
     top: calc(50% - 1px);
     right: 0;
     height: 2px;
-    background: linear-gradient(-45deg, rgba(0, 0, 255, 0), rgba(95, 145, 255, 1), rgba(0, 0, 255, 0));
+    background: linear-gradient(-45deg, rgba(0, 0, 255, 0), rgba(255, 255, 255, 1), rgba(0, 0, 255, 0));
     transform: translateX(50%) rotateZ(45deg);
     border-radius: 100%;
     animation: shining 3s ease-in-out infinite;
@@ -1081,8 +1162,10 @@ body {
 }
 
 @keyframes shooting {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(300px); }
+    0% { transform: translateX(0); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateX(300px); opacity: 0; }
 }
 
 @keyframes shining {

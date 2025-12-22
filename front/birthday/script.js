@@ -76,6 +76,65 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error("Music initialization failed:", e);
     }
 
+    // --- Sound Manager (Synthesized SFX) ---
+    const SoundManager = {
+        ctx: null,
+        init: function() {
+            if (!this.ctx) {
+                this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (this.ctx.state === 'suspended') {
+                this.ctx.resume();
+            }
+        },
+        playBalloonPop: function() {
+            this.init();
+            const t = this.ctx.currentTime;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            
+            osc.frequency.setValueAtTime(500, t);
+            osc.frequency.exponentialRampToValueAtTime(50, t + 0.1);
+            osc.type = 'triangle';
+            
+            gain.gain.setValueAtTime(0.3, t);
+            gain.gain.exponentialRampToValueAtTime(0.01, t + 0.1);
+            
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            
+            osc.start(t);
+            osc.stop(t + 0.1);
+        },
+        playFirework: function() {
+            this.init();
+            const t = this.ctx.currentTime;
+            
+            // Low boom
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            
+            osc.frequency.setValueAtTime(150, t);
+            osc.frequency.exponentialRampToValueAtTime(10, t + 0.3);
+            osc.type = 'square';
+            
+            gain.gain.setValueAtTime(0.1, t);
+            gain.gain.exponentialRampToValueAtTime(0.01, t + 0.3);
+            
+            // Lowpass to muffle square wave
+            const filter = this.ctx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.value = 200;
+            
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(this.ctx.destination);
+            
+            osc.start(t);
+            osc.stop(t + 0.3);
+        }
+    };
+
     // --- Page Navigation System ---
     const pages = {
         envelope: document.getElementById('section-envelope'),
@@ -203,6 +262,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 2. Cake Logic (Cinematic Lighting) ---
     function initCake() {
         startMeteorShower(); // Start meteors
+        
+        // Interactive Balloons
+        const balloons = document.querySelectorAll('.balloon');
+        balloons.forEach(b => {
+            b.classList.remove('popped'); // Reset
+            b.onclick = () => {
+                SoundManager.playBalloonPop();
+                b.classList.add('popped');
+            };
+        });
+
         document.getElementById('cake-title-en').innerText = config.cake.title;
         document.getElementById('cake-title-cn').innerText = config.cake.titleCn;
         
@@ -337,78 +407,70 @@ document.addEventListener('DOMContentLoaded', () => {
                 }, 4000);
     }
 
-    // --- 4. Album Logic (Immersive Grid + Lightbox) ---
+    // --- 4. Album Logic (Film Strip) ---
     /**
      * Initialize Album Section
      * Features:
-     * - Masonry Grid Layout
-     * - Intersection Observer for scroll animations (Rhythmic Fade-in)
-     * - Parallax Background Effect
-     * - Interactive Lightbox with Backdrop
+     * - Auto-scrolling Film Strip Effect
+     * - Tilted Layout (CSS)
+     * - Interactive Lightbox
      */
     function initAlbum() {
         document.getElementById('album-title').innerText = config.album.title;
         document.getElementById('album-subtitle').innerText = config.album.subTitle;
         
-        const grid = document.getElementById('photo-grid');
-        grid.innerHTML = ''; // Clear existing
+        const track = document.getElementById('film-strip-track');
+        track.innerHTML = ''; // Clear existing
         
         const images = config.album.images;
         
-        // Populate Grid
-        images.forEach((src, index) => {
-            const item = document.createElement('div');
-            item.className = 'grid-item';
+        // Double the images to create seamless loop
+        // We add the full set twice. 
+        // Animation moves from 0 to -50% (width of one set).
+        const loopImages = [...images, ...images]; 
+        
+        loopImages.forEach((src, index) => {
+            // Map index back to original images array for lightbox
+            const realIndex = index % images.length;
+            
+            const frame = document.createElement('div');
+            frame.className = 'film-frame';
             
             const img = document.createElement('img');
             img.src = src;
-            img.loading = 'lazy'; // Performance optimization
+            img.loading = 'lazy';
             
-            item.appendChild(img);
-            grid.appendChild(item);
+            frame.appendChild(img);
+            track.appendChild(frame);
             
             // Click to open lightbox
-            item.addEventListener('click', () => openLightbox(index));
+            frame.addEventListener('click', () => openLightbox(realIndex));
         });
 
-        // Parallax Scroll Effect
-        // Moves the background at a different speed than the foreground for depth
+        // Parallax Scroll Effect (Optional, keep subtle)
         const albumSection = document.getElementById('section-album');
         const albumBg = document.querySelector('.album-background');
         
         window.addEventListener('scroll', () => {
-            // Only animate if album is visible to save performance
             if (!albumSection.classList.contains('hidden')) {
                 const scrolled = window.scrollY;
-                // Move background 20% of scroll speed
                 if(albumBg) albumBg.style.transform = `translateY(${scrolled * 0.2}px)`; 
             }
         });
 
-        // Scroll Animation Observer with Staggered Rhythm
+        // Scroll Animation Observer (Header)
         const observer = new IntersectionObserver((entries) => {
-            let staggerDelay = 0;
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
-                    // Add delay for items appearing simultaneously to create a "wave" effect
-                    setTimeout(() => {
-                        entry.target.classList.add('visible');
-                    }, staggerDelay);
-                    staggerDelay += 100; // 100ms delay between items in the same batch
-                    
-                    observer.unobserve(entry.target); // Only animate once
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
                 }
             });
         }, { threshold: 0.1 });
 
-        // Observe header and items
         const header = document.querySelector('.album-header-container');
         if (header) observer.observe(header);
         
-        document.querySelectorAll('.grid-item').forEach(item => {
-            observer.observe(item);
-        });
-
         // Lightbox Logic
         const lightbox = document.getElementById('lightbox');
         const lbImg = document.getElementById('lightbox-img');
@@ -423,7 +485,6 @@ document.addEventListener('DOMContentLoaded', () => {
             currentIdx = index;
             updateLightbox();
             lightbox.classList.remove('hidden');
-            // Allow transition
             requestAnimationFrame(() => {
                 lightbox.classList.add('active');
             });
@@ -433,7 +494,7 @@ document.addEventListener('DOMContentLoaded', () => {
             lightbox.classList.remove('active');
             setTimeout(() => {
                 lightbox.classList.add('hidden');
-            }, 500); // Match CSS transition
+            }, 500); 
         }
 
         function updateLightbox() {
@@ -466,9 +527,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const btn = document.createElement('button');
             btn.id = 'to-ending-btn';
             btn.innerText = "查看最后的惊喜 ➡️";
-            btn.className = 'secondary-btn';
-            btn.style.display = 'block';
-            btn.style.margin = '40px auto 0';
+            btn.className = 'secondary-btn'; 
             btn.addEventListener('click', () => {
                 initEnding();
                 showPage('ending');
@@ -741,6 +800,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     Math.random() * canvas.width,
                     Math.random() * canvas.height * 0.5
                 );
+                // 30% chance to play sound to avoid noise spam
+                if (Math.random() < 0.3) SoundManager.playFirework();
+                
                 requestAnimationFrame(animate);
             }
         }, 800);
