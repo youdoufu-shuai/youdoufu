@@ -1110,6 +1110,116 @@ body {
     background: rgba(255, 255, 255, 0.4);
 }
 
+/* --- Snowflake Styles --- */
+.snowflake {
+    position: absolute;
+    top: -20px;
+    color: white;
+    user-select: none;
+    pointer-events: none;
+    animation: fall linear forwards;
+    z-index: 9998;
+    text-shadow: 0 0 5px rgba(255,255,255,0.8);
+}
+
+@keyframes fall {
+    to { transform: translateY(105vh) rotate(360deg); }
+}
+
+/* --- Christmas Tree Styles --- */
+.christmas-tree {
+    position: absolute;
+    bottom: 20px;
+    right: -120px; /* Position to the right of the cake */
+    width: 100px;
+    height: 150px;
+    z-index: 4; /* Behind cake but visible */
+    transform: scale(0.8);
+}
+
+/* Mobile adjustment for tree */
+@media (max-width: 600px) {
+    .christmas-tree {
+        right: -60px;
+        bottom: 50px;
+        transform: scale(0.6);
+    }
+}
+
+.tree-layer {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-color: transparent transparent #2d5a27 transparent; /* Dark Green */
+}
+
+.bottom-layer {
+    bottom: 20px;
+    border-width: 0 50px 60px 50px;
+    border-color: transparent transparent #1a472a transparent;
+}
+
+.middle-layer {
+    bottom: 50px;
+    border-width: 0 40px 50px 40px;
+    border-color: transparent transparent #2d5a27 transparent;
+}
+
+.top-layer {
+    bottom: 80px;
+    border-width: 0 30px 40px 30px;
+    border-color: transparent transparent #407a3b transparent;
+}
+
+.trunk {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 25px;
+    background: #5d4037;
+}
+
+.tree-star {
+    position: absolute;
+    top: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #FFD700;
+    font-size: 24px;
+    text-shadow: 0 0 10px #FFD700;
+    animation: twinkle 1s infinite alternate;
+}
+
+.ornament {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: red;
+    box-shadow: 0 0 5px red;
+    animation: blinkOrn 2s infinite;
+}
+
+.o1 { bottom: 35px; left: 30px; background: #ff4757; }
+.o2 { bottom: 60px; left: 60px; background: #ffa502; animation-delay: 0.5s; }
+.o3 { bottom: 90px; left: 45px; background: #1e90ff; animation-delay: 1s; }
+.o4 { bottom: 45px; left: 70px; background: #ffffff; animation-delay: 1.5s; }
+
+@keyframes blinkOrn {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(1.2); }
+}
+
+@keyframes twinkle {
+    0% { transform: translateX(-50%) scale(1); opacity: 0.8; }
+    100% { transform: translateX(-50%) scale(1.2); opacity: 1; }
+}
+
 /* --- Shooting Star Effect --- */
 .meteor-shower {
     position: fixed;

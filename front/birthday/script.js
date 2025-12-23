@@ -727,8 +727,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 3000);
         }
 
-        // Create meteors periodically
-        meteorInterval = setInterval(createMeteor, 2000);
+        // Create meteors periodically (Increased frequency for "shower" effect)
+        meteorInterval = setInterval(createMeteor, 300);
+        
+        // Also start snow immediately
+        startSnow();
     }
 
     function stopMeteorShower() {
@@ -738,6 +741,40 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         const container = document.querySelector('.meteor-shower');
         if (container) container.innerHTML = '';
+    }
+
+    // --- Snow Logic (Christmas Element) ---
+    function startSnow() {
+        if (document.getElementById('snow-container')) return; // Already running
+
+        const snowContainer = document.createElement('div');
+        snowContainer.id = 'snow-container';
+        snowContainer.style.position = 'fixed';
+        snowContainer.style.top = '0';
+        snowContainer.style.left = '0';
+        snowContainer.style.width = '100%';
+        snowContainer.style.height = '100%';
+        snowContainer.style.pointerEvents = 'none';
+        snowContainer.style.zIndex = '9998'; // Below meteors
+        document.body.appendChild(snowContainer);
+
+        function createSnowflake() {
+            const flake = document.createElement('div');
+            flake.className = 'snowflake';
+            flake.style.left = Math.random() * 100 + 'vw';
+            flake.style.opacity = Math.random();
+            flake.style.fontSize = (Math.random() * 10 + 10) + 'px';
+            flake.style.animationDuration = (Math.random() * 3 + 2) + 's'; // 2-5s fall
+            flake.innerText = '❄';
+            
+            snowContainer.appendChild(flake);
+
+            setTimeout(() => {
+                flake.remove();
+            }, 5000);
+        }
+
+        setInterval(createSnowflake, 200);
     }
 
     // --- Fireworks Logic ---
